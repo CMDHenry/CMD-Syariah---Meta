@@ -1,0 +1,128 @@
+tr.header{
+	text-align:center;
+	font-weight:bold;
+}
+
+td {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	line-height: 16px;
+	color: #000000;
+}
+
+.judul {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	font-weight: bolder;
+
+}
+
+.judul_menu {
+	color:white;
+	font-size: 10px;
+	font-weight: bolder;
+}
+
+.selectMenu {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+}
+
+a {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	text-decoration: none;
+	color: #000000;
+}
+
+a.blue {
+	color: blue;
+}
+
+a.gray {
+	color: #333333;
+	font-size: 11px;
+	font-weight: bolder;
+}
+
+a:hover {
+	color: #0055FF;
+}
+
+.linespace {
+	height: 10px;
+}
+
+body {
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	padding:0 0 0 0;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	line-height: 16px;
+	color: #000000;
+}
+
+.kalimat {
+	text-align: justify;
+}
+
+.nb {
+	font-size: 9 px;
+	color: #999999;
+}
+
+input {
+	border: 2px groove #FFFFF;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	background-color: #FFFFFF;
+}
+input.groove_button {
+	height:20;
+	cursor:hand;
+	font-size:11px;
+	font-weight:bold;
+}
+
+input.groove_text {
+	height:16;
+	cursor:text;
+}
+
+input.groove_checkbox {
+	border:none;
+	background:none;
+}
+
+textarea.groove_text {
+	border: 2px groove #FFFFF;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	background-color: #FFFFFF;
+	cursor:text;
+}
+
+iframe.groove_text {
+	border: 2px groove #FFFFF;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	background-color: #FFFFFF;
+	cursor:text;
+}
+
+select{
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+select.groove_text {
+	border: 2px groove #FFFFF;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	background-color: #FFFFFF;
+	cursor:text;
+}

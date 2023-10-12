@@ -1,0 +1,104 @@
+	<?
+	create_recordset()
+	?>
+	<table cellpadding="0" cellspacing="0" border="0" width="100%" height="100%">
+		<tr height="20">
+			<td>
+				<table cellpadding="0" cellspacing="0" border="0" width="100%" class="border">
+					<tr bgcolor="#D0E4FF">
+						<td>
+							<? //create_button_non_item()?>
+						</td>
+						<td align="right">
+							<? if($recordset->page>1) {?>
+							<a href="#" onClick="fGoPage(1)"><<</a>
+							&nbsp;&nbsp;<a href="#" onClick="fPage(-1)"><</a>&nbsp;&nbsp;
+							<? }?>
+							<?=$recordset->page?> of <?=$recordset->total_page?>&nbsp;&nbsp;
+							<? if($recordset->page<$recordset->total_page) {?>
+							<a href="#" onClick="fPage(+1)">></a>
+							&nbsp;&nbsp;<a href="#" onClick="fGoPage(<?=$recordset->total_page?>)">>></a>&nbsp;&nbsp;
+							<? }?>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td bgcolor="#f8f8f8" class="border">
+				<div id="divContentInner" style='width:100%;height:100%;overflow:auto'>
+				<table cellpadding="0" cellspacing="1" border="0" width="100%">
+					<tr bgcolor="#c8c8c8" class="header" height="15">
+                        <?=create_list_title()?>
+					</tr>
+					<?
+						create_list_data();
+					?>
+				</table>
+				</div>
+			</td>
+		</tr>
+		<tr height="20">
+			<td bgcolor="#D0E4FF" class="border">&nbsp;</td>
+		</tr>
+		<tr height="20"><td>&nbsp;</td></tr>
+	</table>
+<?
+function fascdesc($p_order){
+	global $strorderby,$strordertype;
+	if($strorderby==$p_order){
+		if($strordertype=="asc") echo "<img src='images/asc.gif'>";
+		else echo "<img src='images/desc.gif'>";
+	}
+}
+
+function create_recordset(){
+	global $recordset,$strorderby,$strordertype,$page,$fk_kategori_it,$kata;
+	if ($fk_kategori_it!=""){
+		$lwhere.=" upper(fk_kategori_it) like upper('%".convert_sql($fk_kategori_it)."%')";
+	}
+	if ($kata!=""){
+		if ($lwhere!="") $lwhere.=" and";
+		$lwhere.=" upper(kata) like upper('%".convert_sql($kata)."%')";
+	}
+	if ($lwhere!="") $lwhere=" and ".$lwhere;
+
+	$lquote="
+		select * from data_it.tblkeluhan 
+		where status_keluhan='Done'".$lwhere." order by ".$strorderby." ".$strordertype;	
+
+	//showquery($lquote);
+	$recordset = new recordset("",$lquote,$page,20);
+}
+
+function create_list_title(){
+	global $pk_id_module;
+	?>
+	<td width="100"><a href="#" onClick="fOrder('kategori_it')">Kategori</a><? fascdesc("kategori_it")?></td>
+	<td width = "200"><a href="#" onClick="fOrder('set_knowledge_base')">Tipe</a><? fascdesc("set_knowledge_base")?></td>
+	<td width = "200">FAQ's</td>
+	<td width="100"><a href="#" onClick="fOrder('tgl_reg_keluhan')">Last Update</a><? fascdesc("tgl_reg_keluhan")?></td>
+	<?
+}
+
+function create_list_data(){
+	global $recordset;
+	$lIndex=0;
+	$lrs = $recordset->get_recordset();
+	while ($lrow=pg_fetch_array($lrs)){
+		if($lrow["kd_kategori_it"]!=$kategori_it_before){
+			$count=pg_num_rows(pg_query("select * from data_it.tblkeluhan where fk_kategori_it='".$lrow["fk_kategori_it"]."'"));	
+?>
+		<tr bgcolor='#e0e0e0' onmouseover="fTRColor(this,'over')" onmouseout="fTRColor(this,'out')">
+        	<td style="padding:0 5 0 5" align="left"><?=$lrow["kategori_it"]?></td>
+			<td style="padding:0 5 0 5" align="center"><?=$lrow["tipe"]?></td>
+            <td style="padding:0 5 0 5" align="center"><a href="#" class="blue" onclick="fModal('view','<?=$lrow["fk_kategori_it"]?>')"><?=$count?></a></td>
+            <td style="padding:0 5 0 5" align="center"><?=date("d/m/Y",strtotime($lrow["tgl_reg_keluhan"]))?></td>
+		</tr>
+<?
+		}
+		$kategori_it_before=$lrow["kd_kategori_it"];
+		$lIndex+=1;
+	}
+}
+?>

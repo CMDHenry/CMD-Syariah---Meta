@@ -1,0 +1,288 @@
+<?php
+
+//error_reporting (E_ALL);  // remove this from Production Environment
+require('pdfb/pdfb.php'); // Must include this
+require '../requires/db_utility.inc.php';
+require '../requires/general.inc.php';
+require '../requires/timestamp.inc.php';
+require '../requires/numeric.inc.php';
+require '../requires/convert.inc.php';
+
+include_once("../requires/connection_db.inc.php");	
+include_once("../requires/session.inc.php");	
+
+
+class PDF extends PDFB
+{
+ function ImprovedTable($header, $data,$x,$y)
+	{
+    // Column widths
+    //$w = array(40, 35, 40, 45);
+    // Header
+/*    for($i=0;$i<count($header);$i++)
+        $this->Cell($w[$i],7,$header[$i],1,0,'C');
+    $this->Ln();*/
+    // Data
+	$this->setX($x);
+	$this->setY($y-6);
+    foreach($data as $row)
+    {
+        $this->Cell(220,6,($row),0,12,'R');
+        $this->Ln();
+		
+		}
+    // Closing line
+    //$this->Cell(array_sum($w),0,'','T');
+	} 
+}
+
+
+// Create a PDF object and set up the properties
+
+		$pdf = new PDF("p", "pt", "a4");
+		$header = array('');
+		
+		$pdf->AddPage();
+		
+		$id_edit = $_REQUEST['id_edit'];
+		
+		if(pg_num_rows(pg_query("select * from data_gadai.tblproduk_gadai where no_sbg='".$id_edit."' "))){
+			$l_pk="sbg";
+			$tbl="tblproduk_gadai";
+		}else{
+			$l_pk="sbg";
+			$tbl="tblproduk_cicilan";
+		}
+		
+		$query="
+			select tblcabang.alamat as alamat_cabang,* from (select * from  data_fa.tblpembayaran_cicilan where no_kwitansi='".$id_edit."') as tblpembayaran_cicilan
+		left join (
+		   select fk_sbg as fk_sbg1,fk_produk,tgl_cair,fk_cabang from tblinventory 
+		   left join tblproduk on fk_produk=kd_produk
+		)as tblcicilan on fk_sbg=fk_sbg1
+		left join data_gadai.tblproduk_cicilan on fk_sbg=no_sbg
+		left join data_gadai.tbltaksir_umum on fk_fatg=no_fatg
+		left join (
+			select fk_barang,fk_fatg as fk_fatg_detail from data_gadai.tbltaksir_umum_detail
+		)as tbldetail on fk_fatg_detail=no_fatg		
+		left join tblbarang on fk_barang=kd_barang
+		left join tbltipe on fk_tipe=kd_tipe
+		left join tblmodel on fk_model=kd_model
+		left join tblmerek on fk_merek=kd_merek
+		
+		left join (select no_cif,nm_customer,alamat_ktp from tblcustomer)as tblcustomer on no_cif = fk_cif
+		left join (
+			select angsuran_ke as ang_ke, fk_sbg as fk_sbg2, tgl_jatuh_tempo,bunga_jt from data_fa.tblangsuran
+		)as tblang on fk_sbg=fk_sbg2 and angsuran_ke=ang_ke
+		left join tblcabang on kd_cabang=tblcicilan.fk_cabang
+		";
+		//showquery($query);
+		//echo $query;
+		$lrs=pg_query($query);
+		$lrow=pg_fetch_array($lrs);
+		
+		$no_sbg=$lrow["no_sbg"];
+		$fk_cabang=$lrow["fk_cabang"];
+		$nm_cabang=$lrow["nm_cabang"];
+		$tgl_pengajuan=date("d/m/Y",strtotime($lrow["tgl_cair"]));
+		$tgl_jatuh_tempo=date("d M Y",strtotime($lrow["tgl_jatuh_tempo"]));
+		$tgl_bayar=date("d F Y",strtotime($lrow["tgl_bayar"]));
+		$tgl_bayar=date("d",strtotime($lrow['tgl_bayar'])).' '.getMonthName(date("m",strtotime($lrow['tgl_bayar'])),2).' '.date("Y",strtotime($lrow['tgl_bayar']));
+
+		$tgl_cair=date("d/m/Y",strtotime($lrow["tgl_cair"]));
+		$total_nilai_pinjaman=$lrow["total_nilai_pinjaman"];
+		$nilai_bayar_denda=$lrow["nilai_bayar_denda"];
+		$nilai_bayar_denda2=$lrow["nilai_bayar_denda2"];
+		$total_pembayaran=$lrow["total_pembayaran"];
+		$nilai_bayar_angsuran=$lrow["nilai_bayar_angsuran"];
+		$titipan=$lrow["titipan"];
+		$angsuran_ke=$lrow["angsuran_ke"];
+		$bunga_jt=$lrow["bunga_jt"];
+		$nilai_angsuran=$lrow["nilai_angsuran"];
+		$nm_perusahaan=$lrow["nm_perusahaan"];
+		
+		$overdue=(strtotime($lrow["tgl_bayar"])-strtotime($lrow["tgl_jatuh_tempo"]))/(60 * 60 * 24);
+		
+		if($overdue<0){
+			$overdue=0;	
+		}
+		$nm_customer=$lrow["nm_customer"];	
+		$lrow_angs=pg_fetch_array(pg_query("select sum(nilai_angsuran)as jml_angsuran,count(1)as sisa_angsuran from data_fa.tblangsuran where fk_sbg='".$no_sbg."' and angsuran_ke>".$angsuran_ke.""));
+					
+		//echo $angsuran_plus;
+			
+		$y=25;
+		$w=210;
+		$h=40;
+		
+		$x1=10;		
+		$x2=100;
+		$x3=110;
+		
+		$x4=110;
+		$x5=180;
+		$x6=190;
+		
+		$x7=280;
+		$x8=320;
+		$x9=330;
+		
+		$x10=380;		
+		$x11=460;
+		$x12=470;
+		
+		
+		$pdf->Image('logo.jpeg',0,10,180);	
+		
+		$pdf->setY($y);
+		
+		$pdf->SetFont("Arial", "", 15);
+		$pdf->SetTextColor(255, 0, 0);
+		//$pdf->Text($x6,$y, strtoupper($lrow["nm_perusahaan"]));
+		$pdf->SetTextColor(0, 0, 0);
+		
+		$pdf->SetFont("Arial", "", 9);
+		$pdf->Text($x10,$y, 'Nomor PK');
+		$pdf->Text($x11,$y, ':');		
+		$pdf->Text($x12,$y, ''.$no_sbg);
+		$y+=15;	
+		$pdf->SetFont("Arial", "I", 9);
+		//$pdf->Text($x6,$y, strtoupper($lrow["alamat_cabang"]));
+		$pdf->SetFont("Arial", "", 9);			
+		$pdf->Text($x10,$y, 'ID Customer');
+		$pdf->Text($x11,$y, ':');		
+		$pdf->Text($x12,$y, ''.$lrow["fk_cif"]);
+		$y+=10;		
+		$pdf->line($x1,$y,555,$y);
+		//echo round(str_replace(" ","",microtime(true))*100000000);
+		$codeContents='['.$lrow["nm_cabang"].', '.$tgl_bayar.'] - [NoPK:'.$no_sbg.'] - [NoKW:'.$id_edit.'] - [NoPol:'.$lrow["no_polisi"].'] - [Jlh:'.convert_money("Rp",$total_pembayaran).'] - [AngKe:'.$angsuran_ke."]";
+		//$codeContents=$id_edit;
+		if($_SERVER['DOCUMENT_ROOT']=="D:/Development/Web Project"){
+			//$filename="http://192.168.4.10/gadai/test.php";
+			$filename="http://192.168.4.10/gadai/qr_code.php?codeContents=".urlencode($codeContents)."";
+			//$filename="http://116.90.163.21:81/api/qr_code.php?codeContents=".$id_edit."";
+		}else{
+			$filename="http://localhost:81/api/qr_code.php?codeContents=".urlencode($codeContents)."";
+		}
+		$pdf->Image($filename, $x12,$y+5, 80, 80);		
+		$y+=20;						
+		
+		$pdf->Text($x1,$y, 'Kwitansi Nomor');
+		$pdf->Text($x2,$y, ':');
+		$pdf->Text($x3,$y, ''.$id_edit);
+
+		$y+=12;
+		
+		$pdf->Text($x1,$y, 'Terima Dari');
+		$pdf->Text($x2,$y, ':');
+		$pdf->Text($x3,$y, ''.$nm_customer);
+		$y+=12;
+		
+		$pdf->Text($x1,$y, 'Alamat');
+		$pdf->Text($x2,$y, ':');
+		$pdf->Text($x3,$y, ''.$lrow["alamat_ktp"]);
+		$y+=12;
+		
+		$pdf->Text($x1,$y, 'Banyaknya Uang');
+		$pdf->Text($x2,$y, ':');
+		$pdf->Text($x3,$y, '#'.strtolower(convert_terbilang($total_pembayaran)).'#');
+		$y+=12;
+		
+		$pdf->Text($x1,$y, 'Untuk Pembayaran');
+		$pdf->Text($x2,$y, ':');		
+		
+		$pdf->Text($x4,$y, 'Tgl.Jto ');
+		$pdf->Text($x5,$y, ':');
+		$pdf->Text($x6,$y, ''.$tgl_jatuh_tempo);
+				
+		$pdf->Text($x7,$y, 'No Polisi');
+		$pdf->Text($x8,$y, ':');
+		$pdf->Text($x9,$y, ''.$lrow["no_polisi"]);
+		$y+=12;
+		
+		$pdf->Text($x4,$y, 'Angsuran ');
+		$pdf->Text($x5,$y, ':');
+		$pdf->Text($x6,$y, ''.convert_money("",$nilai_bayar_angsuran));
+		
+		$pdf->Text($x7,$y, 'Merek');
+		$pdf->Text($x8,$y, ':');
+		$pdf->Text($x9,$y, ''.$lrow["nm_merek"]);				
+		$y+=12;
+			
+		$pdf->Text($x4,$y, "Ta'widh ");
+		$pdf->Text($x5,$y, ':');
+		$pdf->Text($x6,$y, ''.convert_money("",$nilai_bayar_denda));
+			
+		$pdf->Text($x7,$y, 'Tipe');
+		$pdf->Text($x8,$y, ':');
+		$pdf->Text($x9,$y, ''.$lrow["nm_tipe"]);		
+		$y+=12;
+		
+		$pdf->Text($x4,$y, "Ta'zir");
+		$pdf->Text($x5,$y, ':');
+		$pdf->Text($x6,$y, ''.convert_money("",$nilai_bayar_denda2));
+		$y+=12;
+				
+		if($lrow['biaya_tagih']>0){
+		$pdf->Text($x4,$y, "Biaya Tagih ");
+		$pdf->Text($x5,$y, ':');
+		$pdf->Text($x6,$y, ''.convert_money("",$lrow['biaya_tagih']));
+		$y+=12;
+		}
+
+		$pdf->Text($x1,$y, 'Angsuran Ke');
+		$pdf->Text($x2,$y, ':');		
+		$pdf->Text($x3,$y, ''.$angsuran_ke);
+		//$pdf->Text($x2,$y, ''.convert_terbilang($angsuran_ke));
+		$pdf->Text($x10,$y, $lrow["nm_cabang"].', '.$tgl_bayar);	
+		$y+=12;
+		
+		$pdf->Text($x10,$y,'Dibayar Oleh :               Diterima Oleh :');
+	
+		$pdf->Text($x1,$y, 'Jumlah');
+		$pdf->Text($x2,$y, ':');		
+		$pdf->Text($x3,$y, ''.convert_money("Rp.",$total_pembayaran));
+	
+		$y+=22;
+		
+		$pdf->Text($x1,$y,'Dengan pembayaran diatas sisa angsuran menjadi:');
+		
+		//'.$nm_depan.','.date("H:i:s").'		
+		$y+=16;
+		$pdf->Text($x1,$y,''.convert_money("",$lrow_angs["jml_angsuran"]).' atau '.$lrow_angs["sisa_angsuran"].'x ANGSURAN');
+		
+		$y+=9;
+		$pdf->line($x1,$y,350,$y);
+		$pdf->Text($x10,$y,'(                           )');
+		$pdf->Text($x10+90,$y,'(                           )');
+		$y+=12;
+		$pdf->SetFont("Arial", "B", 9);
+		$pdf->Text($x1,$y,'NB : Bayarlah angsuran tepat waktu agar terhindar dari biaya keterlambatan dan');
+		$pdf->SetFont("Arial", "", 9);
+		$pdf->Text($x10,$y,'Nama Penyetor :');
+		$y+=12;
+		$pdf->SetFont("Arial", "B", 9);
+		$pdf->Text($x1,$y,'mengambil BPKB paling lambat 30 hari setelah pelunasan');		
+		$pdf->SetFont("Arial", "", 9);
+		$pdf->Text($x10,$y,'No KTP/HP :');		
+		
+		$query="
+			select * from tbluser
+			left join tblkaryawan on npk=fk_karyawan
+			where username = '".$_SESSION['username']."'
+		";
+		//showquery($query);
+		$lrs=pg_query($query);
+		$lrow=pg_fetch_array($lrs);				
+		$nm_depan=$lrow["nm_depan"];
+		
+		$y+=12;
+								
+		//$pdf->BarCode($id_edit,"", 30, $y, 500, 88, 0.4, 0.4, 2, 5, "", "PNG");//harus ada
+		
+		
+	
+
+$pdf->Output();
+
+?>
