@@ -125,7 +125,7 @@ $total_tagih=$lrow_tagih["total_tagih"];
 $total_penerimaan+=$total_tagih;
 
 $query_jual="
-select sum(case when jenis_transaksi='Jual Credit' then nilai_dp end) as nilai_dp,sum(case when jenis_transaksi='Jual Cash' then  angka_lelang end) as angka_penjualan from data_gadai.tbllelang 
+select sum(case when jenis_transaksi='Jual Credit' then nilai_dp end) as nilai_dp,sum(case when jenis_transaksi='Jual Cash' or jenis_transaksi='Lelang' then  angka_lelang end) as angka_penjualan from data_gadai.tbllelang 
 left join tblinventory on tbllelang.fk_sbg=tblinventory.fk_sbg
 where tgl_batal is null and fk_cabang_input='".$fk_cabang."' and tgl_lelang between '".$tgl." 00:00:00' and '".$tgl." 23:59:59' and tgl_approve is not null and status_data!='Batal'";
 $lrow_jual=pg_fetch_array(pg_query($query_jual));

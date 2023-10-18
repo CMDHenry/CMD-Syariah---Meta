@@ -73,7 +73,7 @@ select * from(
 			where nilai_bayar_denda2 > 0 and tgl_batal is null
 			union all
 			select fk_cabang_input,no_kwitansi,fk_sbg,'PEL' as ket,angka_lelang as nilai_bayar,'Cash' as cara_bayar,0 as disc_denda,tgl_lelang,0 as nilai_bayar_denda,0 as nilai_bayar_denda2,'','',fk_bank,'1',tgl_lelang from data_gadai.tbllelang
-			where status_data='Approve' and jenis_transaksi in('Jual Cash')
+			where status_data='Approve' and jenis_transaksi in('Jual Cash','Lelang')
 			
 			union all
 			select fk_cabang_input,no_kwitansi,fk_sbg,'TGH' as ket,biaya_tagih as nilai_bayar,cara_bayar,0 as disc_denda,tgl_input,0 as nilai_bayar_denda , 0 as nilai_bayar_denda2,no_kwitansi_manual,nm_kolektor,fk_bank,'1',tgl_bayar  from data_fa.tblpembayaran_cicilan
