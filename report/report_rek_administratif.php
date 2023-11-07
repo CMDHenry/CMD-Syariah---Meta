@@ -126,7 +126,7 @@ function excel_content(){
 				
 				$lwhere2='';
 				if($data['no']>20){
-					$lwhere2=" and reference_transaksi like 'WO%'";
+					$lwhere2=" and reference_transaksi like 'AR WO%'";
 				}
 				
 				foreach($data['coa'] as $coa){
