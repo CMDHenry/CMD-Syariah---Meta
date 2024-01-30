@@ -250,7 +250,7 @@ function cek_error(){
 	//echo $nama_menu.'sdfsd';
 	//	if($nm_menu!='Pelunasan Gadai' && $nm_menu!='Pelunasan Cicilan'){
 
-	$p_arr_exception=array('Pelunasan Gadai','Pelunasan Cicilan','Pembayaran Biaya Tebus','Pembayaran Biaya Simpan BPKB','Pembayaran Cicilan','Kredit','Penambahan DP');
+	$p_arr_exception=array('Pelunasan Gadai','Pelunasan Cicilan','Pembayaran Biaya Tebus','Pembayaran Biaya Simpan BPKB','Pembayaran Cicilan','Kredit','Penambahan DP','Tambah DP/Ganti CIF(Ganti Kontrak)');
 	if (!in_array($nm_menu,$p_arr_exception)){		
 		
 		if(!pg_num_rows(pg_query("select ".$lrs_set_status["save_field_status"]."  from ".$lrs_set_status["save_to_table"]." where $table_pk='".$id_edit."' and ".$lrs_set_status["save_field_status"]." ='".$status_tr."' for update"))){			
@@ -344,7 +344,7 @@ function save_data(){
 
 	}
 	//if($id_menu=="20171100000016")$l_success=0;
-	$l_success=0;
+	// $l_success=0;
 	if ($l_success==1){
 		$alasan_status="";
 		$alasan_batal="";

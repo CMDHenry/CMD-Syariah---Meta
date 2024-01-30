@@ -159,6 +159,10 @@ $l_res1=pg_query($query);
 $i = 1;
 while($lrow1=pg_fetch_array($l_res1)){
 	$data[$i]['fk_coa'] = $lrow1["fk_coa"];
+	if (strpos($$lrow1["catatan"], "Datun") !== false) {
+		// Replace "Datun" with "Akad Murabahah"
+		$$lrow1["catatan"] = str_replace("Datun", "Akad Murabahah", $$lrow1["catatan"]);
+	}
 	$data[$i]['catatan'] = $lrow1["catatan"];	
 	$data[$i]['nominal'] = convert_money("",$lrow1["nominal"]);	
 	$i++;

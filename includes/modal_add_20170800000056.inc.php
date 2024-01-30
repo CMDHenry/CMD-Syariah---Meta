@@ -20,12 +20,13 @@ function cek_error_module(){
 	$cara_bayar=$_REQUEST["cara_bayar"];
 	$arr_cara_bayar_cabang=array('Cash','Collector','Giro/Cek');
 	
-	$ovd_blokir=get_rec("tblsetting","ovd_blokir","ovd_blokir>0");	
-	if($overdue>$ovd_blokir && !in_array($cara_bayar,$arr_cara_bayar_cabang)){//ini untuk pembayaran online
-		if(!pg_num_rows(pg_query("select * from data_fa.tblapproval_buka_blokir where fk_sbg='".$fk_sbg."' and tgl_buka between '".date("m/d/Y 00:00:00")."' and '".date("m/d/Y 23:59:59")."'"))){
-			$strmsg.="Tagihan melebihi batas OD ".$ovd_blokir." hari<br>";	
-		}
-	}
+	// Hapus blokir 90 hari, SOP dari management (tim UUS) tanggal 22 September 2023
+	// $ovd_blokir=get_rec("tblsetting","ovd_blokir","ovd_blokir>0");	
+	// if($overdue>$ovd_blokir && !in_array($cara_bayar,$arr_cara_bayar_cabang)){//ini untuk pembayaran online
+	// 	if(!pg_num_rows(pg_query("select * from data_fa.tblapproval_buka_blokir where fk_sbg='".$fk_sbg."' and tgl_buka between '".date("m/d/Y 00:00:00")."' and '".date("m/d/Y 23:59:59")."'"))){
+	// 		$strmsg.="Tagihan melebihi batas OD ".$ovd_blokir." hari<br>";	
+	// 	}
+	// }
 	
 	
 	$query="

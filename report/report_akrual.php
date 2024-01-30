@@ -106,8 +106,8 @@ function excel_content(){
 		left join (
 			select sum(akrual1+akrual2) as akrual_bln_ini,
 			fk_sbg as fk_sbg3 from data_fa.tblangsuran 
-			left join (select addm_addb, no_sbg from data_gadai.tblproduk_cicilan)as tblsbg on fk_sbg=no_sbg
-			where tgl_jatuh_tempo like '".$current_month."%' 
+			left join (select addm_addb, tgl_wo, no_sbg from data_gadai.tblproduk_cicilan)as tblsbg on fk_sbg=no_sbg
+			where tgl_jatuh_tempo like '".$current_month."%' and tgl_wo is null
 			group by fk_sbg
 		) as tblangsuran3 on fk_sbg3=no_sbg		
 		left join (
@@ -119,8 +119,8 @@ function excel_content(){
 		left join (
 			select sum(akrual1+akrual2) as saldo_bunga,
 			fk_sbg as fk_sbg5 from data_fa.tblangsuran 
-			left join (select addm_addb, no_sbg from data_gadai.tblproduk_cicilan)as tblsbg on fk_sbg=no_sbg
-			where tgl_jatuh_tempo >='".$eom."' 	
+			left join (select addm_addb, tgl_wo, no_sbg from data_gadai.tblproduk_cicilan)as tblsbg on fk_sbg=no_sbg
+			where tgl_jatuh_tempo >='".$eom."' and tgl_wo is null
 			group by fk_sbg
 		) as tblangsuran5 on fk_sbg5=no_sbg		
 			

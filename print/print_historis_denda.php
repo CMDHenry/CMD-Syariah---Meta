@@ -111,7 +111,8 @@ $query="
 		)as tbl on fk_sbg=fk_sbg and referensi=no_kwitansi
 		where transaksi in('Bayar Denda Ganti Rugi') and tgl_batal is null
 	)as tbldenda2 on fk_sbg=fk_sbg2 and ang_ke=angsuran_ke	
-	where fk_sbg = '".$fk_sbg."' and angsuran_ke >0 and tgl_jatuh_tempo<'".$tgl_sistem."' 
+	where fk_sbg = '".$fk_sbg."' and angsuran_ke >0
+	--and tgl_jatuh_tempo<'".$tgl_sistem."' 
 	--and tgl_bayar is not null
 	order by angsuran_ke
 ";

@@ -61,5 +61,5 @@ function array_find($p_needle,$p_haystack){
     else return false; 
 }
 
-$__url="website/";
+$__url="CMD-Syariah---Meta/";
 ?>

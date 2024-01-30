@@ -161,7 +161,10 @@ class PDF extends PDFB
 	
 	$y+=10;
 	$total_dp=$lrow["nilai_dp"];
-	if($lrow["kategori"]=='R4')$total_dp+=($lrow["biaya_admin"]+$lrow["biaya_polis"]);
+	if($lrow["kategori"]=='R4'){
+		if($lrow["addm_addb"]=='M')$total_dp+=($lrow["angsuran_bulan"]);
+		$total_dp+=($lrow["biaya_admin"]+$lrow["biaya_polis"]);
+	}
 	$pdf->Text($x1,$y, ' DP '); 
 	$pdf->Text($x2,$y, ' : ');
 	$pdf->Text($x3,$y, '_________');

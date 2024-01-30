@@ -32,9 +32,12 @@ function cek_error_module(){
 	$ovd_lunas_bpkb=get_rec("tblsetting","ovd_lunas_bpkb","tgl_sistem is not null");
 	$tgl_lunas=get_rec("tblinventory","tgl_lunas","fk_sbg='".$no_sbg."'");
 	$status_inv=get_rec("tblinventory","status","fk_sbg='".$no_sbg."'");
+	$tgl_bpkb=get_rec("data_gadai.tbltaksir_umum","tgl_terima_bpkb", "where no_sbg_ar'".$no_sbg."'");
 	//echo $tgl_serah_terima_bpkb.'sdfsdf';
 	//$ovd_pengambilan_bpkb=$_REQUEST["ovd_pengambilan_bpkb"];		
 	$ovd_bpkb=(strtotime(convert_date_english($tgl_serah_terima_bpkb))-strtotime($tgl_lunas))/(60*60*24);
+	$ovd_terima_bpkb=(strtotime(convert_date_english($tgl_serah_terima_bpkb))-strtotime($tgl_bpkb))/(60*60*24);
+	if($ovd_bpkb>0 && $ovd_terima_bpkb>0)
 	//echo $ovd_bpkb.'sdfsdf';
 	$ovd_lunas_bpkb=$ovd_bpkb-$ovd_lunas_bpkb;
 	if($status_inv=='Jual Cash')$ovd_lunas_bpkb=0;//cash ga perlu biaya simapan

@@ -64,14 +64,15 @@ if($fk_cabang){
 	
 	$lrs=(pg_query("select sum(pokok_jt)as sisa_pokok,sum(bunga_jt)as sisa_bunga,count(1)as sisa_tenor from data_fa.tblangsuran
 where fk_sbg='".$fk_sbg."' and tgl_jatuh_tempo >'".$tgl_bayar."' 
-	-- and tgl_bayar is null"));
+	and tgl_bayar is null"));
 	$lrow2=pg_fetch_array($lrs);		
 	$sisa_pokok=round($lrow2["sisa_pokok"]);
 	$sisa_bunga=round($lrow2["sisa_bunga"]);
 	//$sisa_pokok=136239897;
 	
 	$lrs=(pg_query("select sum(pokok_jt)as sisa_pokok,count(1)as sisa_tenor from data_fa.tblangsuran
-where fk_sbg='".$fk_sbg."' and tgl_jatuh_tempo >'".$tgl_bayar."'"));
+where fk_sbg='".$fk_sbg."' and tgl_jatuh_tempo >'".$tgl_bayar."'
+and tgl_bayar is null"));
 	$lrow2=pg_fetch_array($lrs);			
 	//$lama_pinjaman=round($lrow2["sisa_tenor"])-1;
 	$lama_pinjaman=$lama_pinjaman_input;
@@ -79,7 +80,7 @@ where fk_sbg='".$fk_sbg."' and tgl_jatuh_tempo >'".$tgl_bayar."'"));
 	
 	$lrs=(pg_query("select sum(bunga_jt)as akrual,sum(nilai_angsuran)as sisa_angsuran from data_fa.tblangsuran
 where fk_sbg='".$fk_sbg."' and tgl_jatuh_tempo <='".$tgl_bayar."' 
-	--and tgl_bayar is null"));
+	and tgl_bayar is null"));
 	$lrow2=pg_fetch_array($lrs);		
 	$sisa_angsuran=round($lrow2["sisa_angsuran"]);
 	
@@ -89,7 +90,7 @@ where fk_sbg='".$fk_sbg."' and tgl_jatuh_tempo <='".$tgl_bayar."'
 	$total_denda_kini=0;
 	
 	$lrs=(pg_query("select tgl_jatuh_tempo,nilai_angsuran from data_fa.tblangsuran where fk_sbg='".$fk_sbg."' 
-	--and tgl_bayar is null 
+	and tgl_bayar is null 
 	order by angsuran_ke asc "));
 
 	$i=0;

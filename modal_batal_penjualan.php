@@ -14,7 +14,7 @@ function get_additional(){
 function save_data(){
 	global $j_action,$strmsg,$id_menu,$kd_module,$id_edit, $upload_path,$kd_tabs,$kd_tabs2,$kd_tabs3,$upload_path_website_pic,$l_success;
 	
-	$l_success=1;		
+	$l_success=1;
 	
 	pg_query("BEGIN");	
 	$no_lelang=	$_REQUEST["no_kwitansi"];
@@ -29,7 +29,7 @@ function save_data(){
 	}else{
 		if(!pg_query(storing($fk_sbg,'-','Terima','Batal Pelunasan')))$l_success=0;
 	}
-	if(!pg_query(insert_history_sbg($fk_sbg,'0',$ang_ke,'Batal '.$jenis_transaksi,$no_lelang,0,'t'))) $l_success=0;			
+	if(!pg_query(insert_history_sbg($fk_sbg,'0',$ang_ke,'Batal '.$jenis_transaksi,$no_lelang,0,'t'))) $l_success=0;		
 	
 	//SALDO BANK DIBALIKIN 
 	$query="select * from data_fa.tblhistory_bank
@@ -81,14 +81,14 @@ function save_data(){
 	if(count($arrPost)=='0'){
 		$l_success=0;
 	}
-	//cek_balance_array_post($arrPost);
+	// cek_balance_array_post($arrPost);
 	if(!posting('BATAL '.$type_owner,$fk_owner,today_db,$arrPost,$fk_cabang,'00'))$l_success=0;
 	
 	$tbl="data_gadai.tbllelang";
 	//SBG DIBATALIN
 	$lwhere="no_kwitansi='".$no_lelang."'";
-	if(!pg_query(insert_log($tbl,$lwhere,'UB')))$l_success=0;	
-	if(!pg_query("update ".$tbl." set status_data='Batal' where ".$lwhere.""))$l_success=0; 
+	if(!pg_query(insert_log($tbl,$lwhere,'UB')))$l_success=0;
+	if(!pg_query("update ".$tbl." set status_data='Batal' where ".$lwhere.""))$l_success=0;
 	if(!pg_query(insert_log($tbl,$lwhere,'UA')))$l_success=0;
 	
 	$lwhere="fk_sbg='".$fk_sbg."' and tgl_bayar is not null and no_kwitansi='".$no_lelang."'";
@@ -103,7 +103,7 @@ function save_data(){
 		if(!pg_query(update_saldo_titipan($fk_sbg,($titipan))))$l_success=0;
 	}
 */
-	//echo $l_success;
+	// echo $l_success;
 	//$l_success=0;
 	if ($l_success==1){
 		$lrs_kosong=pg_query("select * from skeleton.tblmodule inner join skeleton.tblmodule_fields on skeleton.tblmodule.pk_id=fk_module where fk_menu='".$id_menu."' and is_edit is true");

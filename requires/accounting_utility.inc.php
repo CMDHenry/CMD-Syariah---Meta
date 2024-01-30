@@ -1464,7 +1464,7 @@ function cek_periode_accounting($p_tahun,$p_bulan){
 	$tgl_live = get_rec("tblsetting","tgl_live");
 	$p_tgl=$p_tahun.'-'.$p_bulan.'-01';
 	//echo $p_tahun.$p_bulan. "<".$tahun_accounting.$bulan_accounting;
-	if($p_tahun.$p_bulan <$tahun_accounting.$bulan_accounting)return false;
+	if(strtotime($p_tahun.'-'.$p_bulan.'-01') <strtotime($tahun_accounting.'-'.$bulan_accounting.'-01'))return false;
 	else if(strtotime($p_tgl) < strtotime($tgl_live))return false;	
 	else return true;
 }

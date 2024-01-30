@@ -76,7 +76,7 @@ $x_right=67;
 $pdf->selectFont('fonts/Times-Roman');
 
 if($template=='t'){
-if(substr($lrow["nm_bpkb"],0,6)==substr($lrow["nm_customer"],0,6)){
+if($lrow["nm_bpkb"]==$lrow["nm_customer"]){
 	$y-=40;
 	$pdf->addText($x2+20, $y, $fontsize,$lrow["nm_customer"]);
 	$y-=18;
@@ -150,7 +150,7 @@ $pdf->ezSetY($y-15);
 
 //$tgl_sistem='2021-02-09';
 $i=0;
-if(substr($lrow["nm_bpkb"],0,6)==substr($lrow["nm_customer"],0,6)){
+if($lrow["nm_bpkb"]==$lrow["nm_customer"]){
 	$data[$i]['data1'] = 'Nama ';	
 	$data[$i]['data2'] =  ': '.strtoupper($lrow['nm_customer']);	
 	$i++;
@@ -271,7 +271,7 @@ $pdf->addText($x1+360,$y, $fontsize,'PEMBERI KUASA,');
 $y-=70;
 
 $pdf->addText($x1+45,$y, $fontsize,'('.$nm_pihak1.')');
-if(substr($lrow["nm_bpkb"],0,6)==substr($lrow["nm_customer"],0,6)){
+if($lrow["nm_bpkb"]==$lrow["nm_customer"]){
 $pdf->addText($x1+360,$y, $fontsize,'('.$lrow["nm_customer"].')');
 }else{
 	if($lrow["jenis_customer"]=='0'){

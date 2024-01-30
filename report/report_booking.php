@@ -175,7 +175,8 @@ function excel_content(){
 				--limit 1
 			)as tblcicila
 			left join(
-				select fk_cabang,no_fatg as fk_fatg1, fk_cif,no_bpkb,bpkb_diserahkan,tgl_bpkb,tgl_terima_bpkb,tgl_cabut_limpah,no_limpah_ke_bank,tgl_limpah_ke_bank ,tgl_serah_terima_bpkb,posisi_bpkb,no_faktur,tgl_faktur,nm_bpkb,status_barang,no_tt_bpkb,no_polisi, fk_karyawan_cmo ,kondisi_unit from data_gadai.tbltaksir_umum				
+				select fk_cabang,no_fatg as fk_fatg1, fk_cif,no_bpkb,bpkb_diserahkan,tgl_bpkb,tgl_terima_bpkb,tgl_cabut_limpah,no_limpah_ke_bank,tgl_limpah_ke_bank ,tgl_serah_terima_bpkb,posisi_bpkb,no_faktur,tgl_faktur,nm_bpkb,status_barang,no_tt_bpkb,no_polisi, fk_karyawan_cmo, fk_tujuan_transaksi, nm_tujuan_transaksi ,kondisi_unit from data_gadai.tbltaksir_umum
+				left join tbltujuan_transaksi on fk_tujuan_transaksi=kd_tujuan_transaksi
 			) as tblinventory on fk_fatg1=fk_fatg
 			left join (
 				select kd_produk,nm_produk,jenis_produk from tblproduk
@@ -234,7 +235,7 @@ function excel_content(){
 		".$lwhere1."
 		order by tgl_pengajuan asc
 	";
-	//showquery($query);
+	// showquery($query);
 	
 	$arr_tac=array('Dealer','Kacab','SPV','Sales');
 	
@@ -255,6 +256,7 @@ function excel_content(){
 			<td align="center" rowspan="2">No CIF</td>
 			<td align="center" rowspan="2">Nama Customer</td>
 			<td align="center" rowspan="2">No ID/KTP</td>
+			<td align="center" rowspan="2">No KK</td>
 			<td align="center" rowspan="2">Jenis Kelamin</td>		
 			<td align="center" rowspan="2">Status</td>
 			<td align="center" rowspan="2">Pekerjaan</td>							
@@ -302,7 +304,8 @@ function excel_content(){
 			
 			<td align="center" rowspan="2">TTD Kontrak</td>
 			
-			<td align="center" rowspan="2">Jenis Pembiayaan</td>	
+			<td align="center" rowspan="2">Jenis Pembiayaan</td>
+			<td align="center" rowspan="2">Tujuan Transaksi</td>	
 			<td align="center" rowspan="2">Skema Pembiayaan</td>		
 			<td align="center" rowspan="2">CMO</td>		
 			<td align="center" rowspan="2">Tgl Cetak Kontrak</td>		
@@ -417,6 +420,7 @@ function excel_content(){
 				<td valign="top">'.$lrow["no_cif"].'</td>
 				<td valign="top">'.$lrow["nm_customer"].'</td>
 				<td valign="top">&nbsp;'.$lrow["no_id"].'</td>
+				<td valign="top">&nbsp;'.$lrow["no_kk"].'</td>
 				<td valign="top">'.$lrow["jenis_kelamin"].'</td>
 				<td valign="top">'.$lrow["status_pernikahan"].'</td>
 				<td valign="top">'.$lrow["nm_pekerjaan"].'</td>						
@@ -482,7 +486,8 @@ function excel_content(){
 				<td valign="top">'.$bpb['Lain'].'</td>	
 				<td valign="top">'.$lrow["is_ttd_kontrak"].'</td>
 							
-				<td valign="top">'.$lrow["jenis_pembiayaan"].'</td>				
+				<td valign="top">'.$lrow["jenis_pembiayaan"].'</td>
+				<td valign="top">'.$lrow["nm_tujuan_transaksi"].'</td>
 				<td valign="top">'.$lrow["skema_pembiayaan"].'</td>			
 				<td valign="top">'.$lrow["nm_cmo"].'</td>				
 				<td valign="top">'.$lrow["log_action_date"].'</td>				
@@ -557,7 +562,7 @@ function excel_content(){
 			<td align="center"></td>
 			<td align="center"></td>
 			<td align="center"></td>
-			
+			<td align="center"></td>
 			<td align="center"></td>
 			<td align="center"></td>
 			<td align="center"></td>	

@@ -61,9 +61,6 @@ if (!isset($_SESSION['id']) ){
 	$saldo_pinjaman=$lrow["saldo_pinjaman"]	;	
 	$ang_ke=$lrow["ang_ke"];
 	$total_denda_lalu=($lrow["total_denda_lalu"]==""?0:$lrow["total_denda_lalu"]);	
-	if($total_denda_lalu>0){
-		$denda_keterlambatan=$lrow["nominal_denda_keterlambatan"];
-	}
 	$titipan=($lrow["titipan"]==""?0:$lrow["titipan"]);		
 	$rate_denda=$lrow["rate_denda"];
 	$rate_pinalti=$lrow["rate_pinalti"];
@@ -93,10 +90,12 @@ if (!isset($_SESSION['id']) ){
 	}
 	//echo $libur.'aa<br>';
 	if($libur==$overdue)$overdue=0;//kalau jmlh hari libur+minggu = overdue. denda di nolkan
-			
-	if($overdue>0){		
+
+	if($overdue>0){
 		$denda_keterlambatan=$lrow["nominal_denda_keterlambatan"];
 		$denda_ganti_rugi+=round($lrow["rate_denda_ganti_rugi"]*$nilai_angsuran/100)*$overdue;
+	}elseif($total_denda_lalu>0){
+		$denda_keterlambatan=$lrow["nominal_denda_keterlambatan"];
 	}
 	$total_denda_kini=$denda_keterlambatan+$denda_ganti_rugi;
 	

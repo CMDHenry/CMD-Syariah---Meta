@@ -127,7 +127,7 @@ function excel_content(){
 		50 => array('no' => '50','name' => 'Arus Kas Keluar untuk Kegiatan Akad Pembiayaan Jasa Lainnya'
 		,'data'=>'detail_out'),		
 		51 => array('no' => '51','name' => 'Arus Kas Keluar untuk Pembayaran Beban Umum dan Administrasi'
-		,'data'=>'sub3_out','coa'=>array('2520000','2620011','2620022','','2601000','2602000','2603000','2900000','51000','52100','53000','54000','55000','56000','57000','58000','59000')),	
+		,'data'=>'sub3_out','coa'=>array('2520000','2620011','2620022','','2601000','2602000','2603000','2900000','51000','52100','53000','54000','55000','56000','57000','58000','59000','5910033')),	
 		52 => array('no' => '52','name' => 'Arus Kas Keluar untuk Pembayaran Pajak Penghasilan'
 		,'data'=>'sub3_out','coa'=>array('11900','23000')),		
 		//'23000'

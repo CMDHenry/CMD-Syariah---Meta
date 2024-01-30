@@ -129,8 +129,11 @@ select sum(case when jenis_transaksi='Jual Credit' then nilai_dp end) as nilai_d
 left join tblinventory on tbllelang.fk_sbg=tblinventory.fk_sbg
 where tgl_batal is null and fk_cabang_input='".$fk_cabang."' and tgl_lelang between '".$tgl." 00:00:00' and '".$tgl." 23:59:59' and tgl_approve is not null and status_data!='Batal'";
 $lrow_jual=pg_fetch_array(pg_query($query_jual));
+$query_pelunasan="select NULL,no_kwitansi,fk_sbg,'PEL' as ket,sisa_pokok+bunga_berjalan+pinalti+sisa_angsuran as nilai_bayar,cara_bayar,diskon_pelunasan as disc_denda,tgl_bayar,0 as nilai_bayar_denda, 0 as nilai_bayar_denda2,'','',fk_bank,'1',tgl_bayar from data_fa.tblpelunasan_cicilan
+where (sisa_angsuran > 0 or sisa_pokok > 0) and tgl_batal is null and fk_cabang_input='".$fk_cabang."' and tgl_bayar between '".$tgl." 00:00:00' and '".$tgl." 23:59:59'";
+$lrow_pelunasan=pg_fetch_array(pg_query($query_pelunasan));
 $penjualan=$lrow_jual["nilai_dp"]+$lrow_jual["angka_penjualan"];
-$total_penerimaan+=$penjualan;
+$total_penerimaan+=$penjualan+$lrow_pelunasan["nilai_bayar"];
 
 $query_bpkb=pg_fetch_array(pg_query("
 select * from data_fa.tblpembayaran_bpkb 
@@ -255,7 +258,7 @@ $data[$i]['2'] = number_format($lrow_jual["nilai_dp"]);
 $i++;
 $data[$i]['0'] = '';
 $data[$i]['1'] = 'Pelunasan';
-$data[$i]['2'] = number_format($lrow_jual['angka_penjualan']);	
+$data[$i]['2'] = number_format($lrow_jual['angka_penjualan']+$lrow_pelunasan["nilai_bayar"]);	
 $i++;
 /*$data[$i]['0'] = '-';
 $data[$i]['1'] = 'Penggantian Giro Tolak dengan Tunai';
@@ -596,8 +599,7 @@ function get_saldo_coa_harian($fk_coa=NULL){
 		inner join tblhead_account on tblhead_account.code=tblcoa.fk_head_account
 		left join tblcabang on fk_cabang = kd_cabang
 		"));
-	}
-	
+	};
 	
 	$start_day=date('m',strtotime($periode_awal)).'/01/'.date('Y',strtotime($periode_awal))." 00:00:00";
 	$end_day=date('m/d/Y',strtotime('-1 second',strtotime($periode_awal)))." 23:59:59";
@@ -623,9 +625,9 @@ function get_saldo_coa_harian($fk_coa=NULL){
 		order by tr_date,no_bukti
 	
 	";
+	// showquery($query);
 	$lrs=pg_query($query);
 	
-	//showquery($query);
 	$i=1;
 	while ($row=pg_fetch_array($lrs)){
 		if($row["total_debit"]!=0 || $row["total_credit"]!=0){

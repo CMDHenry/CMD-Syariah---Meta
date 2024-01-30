@@ -347,7 +347,7 @@ function excel_content(){
 			<td align="center">KABUPATEN</td>
 		  </tr>
 	';
-	//showquery($query);
+	showquery($query);
 	$lrs = pg_query($query);
 	$no=1;
 	//$is_tarik='t';

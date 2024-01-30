@@ -72,7 +72,7 @@ $nm_kacab_kapos=get_karyawan_by_jabatan($nm_jabatan,$lrow["fk_cabang_terima"]);
 
 $query1=$query."
 left join (
-	select(case when fk_permohonan is null then no_srt_mts else fk_permohonan end) as surat, fk_sbg,no_rangka,no_mesin,nm_customer,no_polisi,no_bpkb,fk_mutasi,tblmutasi_bpkb_detail.keterangan,no_srt_mts,fkt_kw,fk_partner_dealer,nm_bpkb from data_fa.tblmutasi_bpkb_detail
+	select(case when fk_permohonan is null then no_srt_mts else fk_permohonan end) as surat, fk_sbg,no_rangka,no_mesin,nm_customer,nm_bpkb,no_polisi,no_bpkb,fk_mutasi,tblmutasi_bpkb_detail.keterangan,no_srt_mts,fkt_kw,fk_partner_dealer,nm_bpkb from data_fa.tblmutasi_bpkb_detail
 	left join data_fa.tblmutasi_bpkb on no_mutasi=fk_mutasi
 	left join data_gadai.tbltaksir_umum on fk_sbg=no_sbg_ar
 	left join tblcustomer on fk_cif=no_cif
@@ -146,7 +146,11 @@ while($lrow1 = pg_fetch_array($lrs1)){
 	}
 	if($jenis_mutasi=='ho_ke_cabang'){
 		$data[$i]['no'] = $i;
-		$data[$i]['nama'] =  $lrow1["nm_bpkb"];
+		if($lrow1["nm_bpkb"]==$lrow1["nm_customer"]){
+			$data[$i]['nama'] =  $lrow1["nm_customer"];
+		} else{
+			$data[$i]['nama'] =  $lrow1["nm_customer"] . ' / ' . $lrow1["nm_bpkb"];
+		}
 		$data[$i]['no_kontrak'] = $lrow1["fk_sbg"];
 		$data[$i]['no_rangka_engine'] =  $lrow1["no_rangka"]." / ".$lrow1["no_mesin"];
 		$data[$i]['no_polisi'] =  $lrow1["no_polisi"];
@@ -159,7 +163,11 @@ while($lrow1 = pg_fetch_array($lrs1)){
 	}
 	if($jenis_mutasi=='cabang_ke_ho'){
 		$data[$i]['no'] = $i;
-		$data[$i]['nama'] =  $lrow1["nm_bpkb"];
+		if($lrow1["nm_bpkb"]==$lrow1["nm_customer"]){
+			$data[$i]['nama'] =  $lrow1["nm_customer"];
+		} else{
+			$data[$i]['nama'] =  $lrow1["nm_customer"] . ' / ' . $lrow1["nm_bpkb"];
+		};
 		$data[$i]['no_kontrak'] = $lrow1["fk_sbg"];
 		$data[$i]['no_rangka'] = $lrow1["no_rangka"];
 		$data[$i]['no_mesin'] = $lrow1["no_mesin"];
@@ -171,7 +179,11 @@ while($lrow1 = pg_fetch_array($lrs1)){
 	
 	if($jenis_mutasi=='ho_ke_bank'){
 		$data[$i]['no'] = $i;
-		$data[$i]['nama'] =  $lrow1["nm_bpkb"];
+		if($lrow1["nm_bpkb"]==$lrow1["nm_customer"]){
+			$data[$i]['nama'] =  $lrow1["nm_customer"];
+		} else{
+			$data[$i]['nama'] =  $lrow1["nm_customer"] . ' / ' . $lrow1["nm_bpkb"];
+		}
 		$data[$i]['no_kontrak'] = $lrow1["fk_sbg"];
 		$data[$i]['no_rangka_engine'] =  $lrow1["no_rangka"]." / ".$lrow1["no_mesin"];
 		$data[$i]['no_polisi'] =  $lrow1["no_polisi"];

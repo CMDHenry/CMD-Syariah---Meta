@@ -35,8 +35,7 @@ $lrow=pg_fetch_array(pg_query($query));
 $kacab=kacab($lrow["fk_cabang"],$lrow["tgl_pengajuan"]);
 $lrow["nm_kacab"]=$kacab["nm_depan"];
 $lrow["alamat_kacab"]=$kacab["alamat"];
-
-if($lrow["kondisi_unit"]=='Bekas'){
+if($lrow["kondisi_unit"]=='Bekas' && substr($id_edit, 0, 2) != "23" && substr($id_edit, 0, 2) != "43"){
 	$lrow["nm_bpkb"]=$lrow['nm_customer'];//kalau unit bekas biar jangan ambil nama bpkb pembeli pertama
 }
 
@@ -97,7 +96,7 @@ $x2=$x1+105;
 
 $y=$pdf->y;
 
-if(substr($lrow["nm_bpkb"],0,6)==substr($lrow["nm_customer"],0,6)){
+if($lrow["nm_bpkb"]==$lrow["nm_customer"]){
 	$y-=67;
 	$pdf->addText($x2, $y, $fontsize,$lrow["nm_customer"]);
 	$y-=20;
@@ -106,8 +105,7 @@ if(substr($lrow["nm_bpkb"],0,6)==substr($lrow["nm_customer"],0,6)){
 	$pdf->addText($x2, $y, $fontsize,$lrow["alamat_ktp"]);
 	$y-=20;
 	$pdf->addText($x2, $y, $fontsize,$lrow["no_id"]);//$lrow["no_id"]
-}else{
-	
+}else{	
 	$y-=67;
 	$pdf->addText($x2, $y, $fontsize,$nm_pihak_lain1);
 	$y-=20;
@@ -142,7 +140,7 @@ $pdf->addText($x2+40,$y, $fontsize,$lrow['nm_cabang']);
 $pdf->addText($x2+135,$y, $fontsize,$tgl_pengajuan);
 $y-=121;
 $pdf->addText($x2-38,$y, $fontsize,$nm_pihak1);
-if(substr($lrow["nm_bpkb"],0,6)==substr($lrow["nm_customer"],0,6)){
+if($lrow["nm_bpkb"]==$lrow["nm_customer"]){
 	$pdf->addText($x2+189,$y, $fontsize,$lrow["nm_customer"]);
 }else{
 	$pdf->addText($x2+189,$y, $fontsize,$nm_pihak_lain1);
@@ -161,7 +159,7 @@ $x1=20;
 $x2=$x1+120;
 
 $y=$pdf->y;
-if(substr($lrow["nm_bpkb"],0,6)==substr($lrow["nm_customer"],0,6)){
+if($lrow["nm_bpkb"]==$lrow["nm_customer"]){
 $y-=15;
 $pdf->addText($x1, $y, $fontsize,'   Nama');
 $pdf->addText($x2, $y, $fontsize,': '.$lrow["nm_customer"]);

@@ -13,7 +13,7 @@ $id_edit= $_REQUEST['id_edit'];
 
 $query="
 select * from data_fa.tblpermohonan_bpkb left join data_fa.tblpermohonan_bpkb_detail on fk_permohonan=no_permohonan
-left join(select nm_customer,no_sbg_ar,fk_cif,no_polisi from data_gadai.tbltaksir_umum
+left join(select nm_customer,nm_bpkb,no_sbg_ar,fk_cif,no_polisi from data_gadai.tbltaksir_umum
 left join tblcustomer on no_cif=fk_cif
 )as tbltaksir on fk_sbg = no_sbg_ar
 left join tblcabang on fk_cabang=kd_cabang
@@ -76,7 +76,11 @@ while($lrow = pg_fetch_array($lrs)){
 		$lrow["sisa_denda"]=0;
 	}
 	$data[$i]['no'] = $i;
-	$data[$i]['nama'] =  $lrow["nm_customer"];
+	if($lrow["nm_bpkb"]==$lrow["nm_customer"]){
+		$data[$i]['nama'] =  $lrow["nm_customer"];
+	} else{
+		$data[$i]['nama'] =  $lrow["nm_customer"] . ' / ' . $lrow["nm_bpkb"];;
+	}
 	$data[$i]['no_kontrak'] = $lrow["fk_sbg"];
 	$data[$i]['no_polisi'] =  $lrow["no_polisi"];
 	$data[$i]['sisa_ang'] =  convert_money("",($lrow["sisa_angsuran"]));

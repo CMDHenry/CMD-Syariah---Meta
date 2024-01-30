@@ -39,7 +39,7 @@ function save_additional(){
 	$query="select * from data_accounting.tblgl_auto
 	left join tblcoa on fk_coa_d = coa or fk_coa_c=coa
 	left join tbljenis_transaksi on used_for=kd_jenis_transaksi
-	where fk_owner = '".$_REQUEST["fk_sbg"]."' and reference_transaksi='".$_REQUEST["id_edit"]."'
+	where fk_owner = '".$_REQUEST["id_edit"]."'
 	order by no_bukti";
 	$lrs=pg_query($query);
 	//showquery($query);
@@ -61,11 +61,9 @@ function save_additional(){
 		$type_owner=$lrow["type_owner"];
 	}	
 	//cek_balance_array_post($arrPost);
-	if(!posting('BATAL '.$type_owner,$_REQUEST["fk_sbg"],today_db,$arrPost,$fk_cabang,'00'))$l_success=0;
+	if(!posting('BATAL '.$type_owner,$_REQUEST["id_edit"],$lrow["tr_date"],$arrPost,$fk_cabang,'00'))$l_success=0;
 		
 	//$l_success=0;
 	
 }	
-
 ?>
-

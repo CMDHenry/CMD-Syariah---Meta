@@ -105,7 +105,7 @@ where true
 ".($fk_cabang2?" and ((fk_cabang_kontrak='".$fk_cabang2."' and cara_bayar!='Cash')or fk_cabang_input='".$fk_cabang2."')":"")."
 order by tgl_bayar,no_kwitansi,urutan
 ";
-//showquery($query);
+// showquery($query);
 $lrs = pg_query($query);
 $i=1;
 
@@ -154,7 +154,7 @@ while($lrow=pg_fetch_array($lrs)){
 		if($lrow['nm_kolektor']=='')$lrow['nm_kolektor']='-';
 		$lrow['cara_bayar2']=$lrow['ket'].' '.$lrow['cara_bayar'].' '.$lrow['nm_kolektor'];
 		$arr_col[$lrow['cara_bayar2']]+=$lrow["nilai_bayar"];		
-	}elseif($lrow['cara_bayar']=='Indomaret' || $lrow['cara_bayar']=='Alfamart'){		
+	}elseif($lrow['cara_bayar']=='Indomaret' || $lrow['cara_bayar']=='Alfamart' || $lrow['cara_bayar']=='Tokopedia'){		
 		if($lrow['ket']!='ANG'){
 			$lrow['cara_bayar2']=$lrow['ket'].' '.$lrow['cara_bayar'];
 			$arr_col[$lrow['cara_bayar2']]+=$lrow["nilai_bayar"];	
@@ -169,11 +169,11 @@ while($lrow=pg_fetch_array($lrs)){
 	$arr[$lrow['ket']]+=$lrow["nilai_bayar"];
 	
 	//$jml_debitur[$lrow['fk_sbg']]=$lrow['fk_sbg'];
-	if($lrow['cara_bayar']=='Indomaret' || $lrow['cara_bayar']=='Alfamart'){	
+	// if($lrow['cara_bayar']=='Indomaret' || $lrow['cara_bayar']=='Alfamart' || $lrow['cara_bayar']=='Cash' || $lrow['cara_bayar']=='Collector' || strpos($lrow['cara_bayar'], 'Webpay') === true || $lrow['cara_bayar']=='Giro/Cek'){	
 		$jml_debitur[$lrow['cara_bayar']][$lrow['fk_sbg']]=$lrow['fk_sbg'];
-	}else{
-		$jml_debitur[' '][$lrow['fk_sbg']]=$lrow['fk_sbg'];
-	}
+	// }else{
+	// 	$jml_debitur[' '][$lrow['fk_sbg']]=$lrow['fk_sbg'];
+	// }
 	
 	$i++;
 	$jenis_cabang=$lrow["jenis_cabang"];
@@ -275,17 +275,19 @@ $i++;
 $data2[$i]['1'] = "Total Penerimaan";
 $data2[$i]['2'] =  convert_money("",$grandtotal['total']);
 $i++;
-//$data2[$i]['1'] = "Jumlah Debitur";
-//$data2[$i]['2'] =  count($jml_debitur);
-//$i++;
 
 if(count($jml_debitur)>0){
 	foreach($jml_debitur as $cara =>$nilai){
 		$data2[$i]['1'] = 'Jumlah Debitur '.$cara;
 		$data2[$i]['2'] =  convert_money("",count($nilai));
+		$total_debitur+= (int) $nilai;
 		$i++;
 	}
 }
+
+$data2[$i]['1'] = "Jumlah Debitur";
+$data2[$i]['2'] =  $total_debitur;
+$i++;
 
 $data2[$i]['1'] = "===================================";
 $data2[$i]['2'] = "=======================";
