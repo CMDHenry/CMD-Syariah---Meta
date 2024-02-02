@@ -209,7 +209,13 @@ function excel_content(){
 			select distinct on(fk_sbg)fk_sbg as fk_sbg_bayar, tgl_bayar as tgl_bayar_terakhir,nilai_angsuran as nominal_bayar_terakhir,no_kwitansi as no_kwitansi_terakhir from data_fa.tblangsuran 
 			where (tgl_bayar is not null and tgl_bayar<='".$tgl."')
 			and angsuran_ke>0 order by fk_sbg,angsuran_ke desc 
-		)as tblbayar on no_sbg=fk_sbg_bayar		
+		)as tblbayar on no_sbg=fk_sbg_bayar
+		left join(
+			select sum(akrual1+akrual2) as saldo_akrual,
+			fk_sbg as fk_sbg_akru from data_fa.tblangsuran 
+			where tgl_jatuh_tempo >='".$tgl."'
+			group by fk_sbg
+		) as akrual on fk_sbg_akru = no_sbg
 		left join(
 			select distinct on (tblhistory_sbg.fk_sbg)tblhistory_sbg.fk_sbg as fk_sbg_tarik,tgl_data as tgl_tarik,fk_user as fk_user_tarik,biaya_tarik,biaya_gudang,biaya_lainnya from data_gadai.tblhistory_sbg
 			left join data_fa.tblpembayaran_tebus on tblpembayaran_tebus.fk_sbg=tblhistory_sbg.fk_sbg
@@ -239,6 +245,7 @@ function excel_content(){
 		echo '
 			<td align="center" rowspan="2">SALDO PIUTANG</td>
 			<td align="center" rowspan="2">PIUTANG YANG BELUM JATUH TEMPO</td>
+			<td align="center" rowspan="2">SALDO OS PROPORSIONAL</td>
 		';
 	}
 	echo '		
@@ -384,15 +391,23 @@ function excel_content(){
 				
 		';		
 		if($jenis_report=="Tarik"){
+			$saldo_proposional = $lrow["saldo_pinjaman"] - $lrow["saldo_akrual"];
+			$total['saldo_pinjaman']+=$lrow["saldo_pinjaman"];
+			$total['piutang_blm_jto']+=$lrow["total_ar"]-$lrow["total_tunggakan"];
+			$total['saldo_proposional']+=$saldo_proposional;
 			echo '
 				<td valign="top">'.number_format($lrow["saldo_pinjaman"]).'</td>
 				<td valign="top">'.number_format(($lrow["total_ar"]-$lrow["total_tunggakan"])).'</td>
+				<td valign="top">'.number_format($saldo_proposional).'</td>
 			';
 		}
 		echo '
 				<td valign="top">'.number_format($lrow["saldo_pokok"]).'</td>
 		';
 		if($jenis_report=="Tarik"){
+			$total['od1']+=$ovd['1']['ar'];
+			$total['od2']+=$ovd['2']['ar'];
+			$total['od3']+=$ovd['3']['ar'];
 			echo '
 				<td valign="top">'.number_format($ovd['1']['od']).'</td>
 				<td valign="top">'.number_format($ovd['1']['ar']).'</td>
@@ -404,8 +419,8 @@ function excel_content(){
 		}
 		echo'
 				<td valign="top" align="right">'.$lrow["ovd_tarik"].'</td>
-				<td valign="top">'.number_format($lrow['total_tunggakan'],2).'</td>
-				<td valign="top">'.number_format($lrow['nilai_angsuran'],2).'</td>
+				<td valign="top">'.number_format($lrow['total_tunggakan']).'</td>
+				<td valign="top">'.number_format($lrow['nilai_angsuran']).'</td>
 				<td valign="top" align="right">'.$lrow["ang_ke"].'</td>
 				<td valign="top" align="right">'.$lrow["tenor"].'</td>
 				<td valign="top">'.($lrow["tgl_jt_berjalan"]==""?"":date("d/m/Y",strtotime($lrow["tgl_jt_berjalan"]))).'</td>				
@@ -422,23 +437,84 @@ function excel_content(){
 				<td valign="top">'.($lrow["masa_berlaku_pajak"]==""?"":date("d/m/Y",strtotime($lrow["masa_berlaku_pajak"]))).'</td>
 				<td valign="top">'.$lrow["nm_kolektor"].'</td>
 				<td valign="top">'.$lrow["nm_cmo"].'</td>';
-		if($jenis_report=="Tebus"){		
+		if($jenis_report=="Tebus"){			
+			$total['biaya_tarik']+=$lrow['biaya_tarik'];
+			$total['biaya_gudang']+=$lrow['biaya_gudang'];
+			$total['biaya_lainnya']+=$lrow['biaya_lainnya'];
 		echo '
 				<td valign="top">'.$lrow["transaksi"].'</td>
 				<td valign="top">'.($lrow["tgl_transaksi"]==""?"":date("d/m/Y",strtotime($lrow["tgl_transaksi"]))).'</td>
-				<td valign="top">'.number_format($lrow['biaya_tarik'],2).'</td>
-				<td valign="top">'.number_format($lrow['biaya_gudang'],2).'</td>
-				<td valign="top">'.number_format($lrow['biaya_lainnya'],2).'</td>
+				<td valign="top">'.number_format($lrow['biaya_tarik']).'</td>
+				<td valign="top">'.number_format($lrow['biaya_gudang']).'</td>
+				<td valign="top">'.number_format($lrow['biaya_lainnya']).'</td>
 			';
 		}
 		echo '	
 			</tr>
 		';	
 		$no++;
-		$total_saldo+=$lrow["saldo_os"];
-	
+		$total['saldo_akhir']+=$lrow['saldo_pokok'];
+		$total['total_tunggakan']+=$lrow['total_tunggakan'];
+		$total['nilai_angsuran']+=$lrow['nilai_angsuran'];
 	}
 	
+	echo '
+		<tr>
+			<td valign="top" colspan="3"><b>Grand Total</b></td>
+		';
+	if($jenis_report=="Tarik"){
+		echo '
+			<td valign="top"><b>'.number_format($total['saldo_pinjaman']).'</b></td>
+			<td valign="top"><b>'.number_format($total['piutang_blm_jto']).'</b></td>
+			<td valign="top"><b>'.number_format($total['saldo_proposional']).'</b></td>
+		';
+	}
+	echo '
+			<td valign="top"><b>'.number_format($total["saldo_akhir"]).'</b></td>
+		';
+	if($jenis_report=="Tarik"){
+		echo '
+			<td valign="top"></td>
+			<td valign="top"><b>'.number_format($total["od1"]).'</b></td>
+			<td valign="top"></td>
+			<td valign="top"><b>'.number_format($total["od2"]).'</b></td>
+			<td valign="top"></td>
+			<td valign="top"><b>'.number_format($total["od3"]).'</b></td>
+		';
+	}
+	echo '
+			<td valign="top"></td>
+			<td valign="top"><b>'.number_format($total["total_tunggakan"]).'</b></td>
+			<td valign="top"><b>'.number_format($total["nilai_angsuran"]).'</b></td>
+			<td valign="top"></td>
+			<td valign="top"></td>				
+			<td valign="top"></td>
+			<td valign="top"></td>	
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
+		';
+	if($jenis_report=="Tebus"){
+		echo'
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"><b>'.number_format($total["biaya_tarik"]).'</b></td>
+			<td valign="top"><b>'.number_format($total["biaya_gudang"]).'</b></td>
+			<td valign="top"><b>'.number_format($total["biaya_lainnya"]).'</b></td>
+		';
+	}
+	echo '			
+		</tr>
+	';		
 				
 	echo '</table>';
 	

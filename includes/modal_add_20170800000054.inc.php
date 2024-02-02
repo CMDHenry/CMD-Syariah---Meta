@@ -247,7 +247,7 @@ function save_additional(){
 	//_".$kategori
 	
 	if($diskon_pelunasan>0){
-		$coa_pend=$fk_cabang.'.'.get_rec("tbltemplate_coa","coa","used_for='pend_bunga_".$kategori);
+		$coa_pend=$fk_cabang.'.'.get_rec("tbltemplate_coa","coa","used_for='pend_bunga_".$kategori."'");
 		$arrPost["pend_bunga1"]					= array('type'=>'d','value'=>$diskon_pelunasan,'account'=>$coa_pend,'reference'=>$no_pelunasan);
 		//_".$kategori
 	}

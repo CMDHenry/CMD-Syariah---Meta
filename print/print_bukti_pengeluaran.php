@@ -43,6 +43,11 @@ left join tblcabang on fk_cabang=kd_cabang
 where no_voucher='".$id_edit."'
 ";				
 $lrow=pg_fetch_array(pg_query($query));
+
+$queryNoRek = "select kd_partner, nm_partner, no_rek from data_fa.tblbatch_payment
+left join tblpartner on kd_partner = fk_partner
+where no_batch = '".$id_edit."'";
+$lrowNoRek=pg_fetch_array(pg_query($queryNoRek));
 //showquery($query);
 //echo $lrow["fk_karyawan_kacab"];
 $total=$lrow['total'];
@@ -85,7 +90,7 @@ if($total>0){
 		$pdf->addText($x1, $y, $fontsize,''.$lrow["nm_bank"]);
 		$y-=12;
 	}
-	$pdf->addText($x1, $y, $fontsize,'Bayar Kepada : '.$lrow["keterangan"]);
+	$pdf->addText($x1, $y, $fontsize,'Bayar Kepada : '.$lrow["keterangan"].'( '.$lrowNoRek['no_rek'].' )');
 	
 }else{
 	$pdf->addText(220, $y, $fontsize+1,'BUKTI PENERIMAAN '.$lrow["jenis"]);

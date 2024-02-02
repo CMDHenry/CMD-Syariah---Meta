@@ -499,6 +499,12 @@ function excel_content(){
 		$lrow["rate_eff"]=(flat_eff($lrow['rate'],$lrow['lama_pinjaman'],$lrow['addm_addb']));;
 		
 		$lrow["saldo_proporsional"]=$lrow["saldo_pinjaman"]-$lrow["saldo_akrual"];
+
+		if($lrow["saldo_blm_jto"] < 0 && $lrow["saldo_pinjaman"] == 0){
+			$saldo_blm_jto = 0;
+		} else {
+			$saldo_blm_jto = $lrow["saldo_blm_jto"];
+		}
 		
 		if($view=='t'){
 		
@@ -524,7 +530,7 @@ function excel_content(){
 				<td valign="top">'.number_format($lrow["saldo_proporsional"]).'</td>
 				<td valign="top">'.number_format($lrow["total_denda2"]).'</td>				
 				<td valign="top">'.number_format($lrow["total_tagih"]).'</td>								
-				<td valign="top">'.number_format($lrow["saldo_blm_jto"]).'</td>
+				<td valign="top">'.number_format($saldo_blm_jto).'</td>
 				<td valign="top">'.number_format($ovd['1']['ar']).'</td>
 				<td valign="top">'.number_format($ovd['2']['ar']).'</td>
 				<td valign="top">'.number_format($ovd['3']['ar']).'</td>
@@ -577,7 +583,7 @@ function excel_content(){
 		$total['saldo_akrual']+=$lrow["saldo_akrual"];
 		$total['saldo_proporsional']+=$lrow["saldo_proporsional"];
 		
-		$total['saldo_blm_jto']+=($lrow["saldo_blm_jto"]);
+		$total['saldo_blm_jto']+=($saldo_blm_jto);
 		$total['saldo_awal']+=$lrow["saldo_awal"];
 		$total['qty']+=1;
 		$total['total_denda2']+=$lrow["total_denda2"];
