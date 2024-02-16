@@ -160,6 +160,7 @@ function excel_content(){
 	if ($lwhere1!="") $lwhere1=" where ".$lwhere1;
 	
 	if ($lwhere!="") $lwhere=" where ".$lwhere;
+	$eom=date('Y-m-t',strtotime($tgl))." 23:59:59";
 
 
 	$query = "
@@ -213,7 +214,7 @@ function excel_content(){
 		left join(
 			select sum(akrual1+akrual2) as saldo_akrual,
 			fk_sbg as fk_sbg_akru from data_fa.tblangsuran 
-			where tgl_jatuh_tempo >='".$tgl."'
+			where tgl_jatuh_tempo >='".$eom."'
 			group by fk_sbg
 		) as akrual on fk_sbg_akru = no_sbg
 		left join(

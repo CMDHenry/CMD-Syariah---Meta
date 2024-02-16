@@ -444,15 +444,26 @@ function save_data(){
 			$total_piutang-=$lrow["angsuran_bulan"];
 		}
 		
-		$total_provisi+=$lrow["biaya_provisi"];
+		$total_provisi+=$lrow["biaya_provisi"];		
 		
-		if($lrow["kategori"]=='R2'){
-			$admin['R2']+=$lrow["biaya_admin"];
-			$admin['R2']+=$lrow["biaya_polis"];//polis jadi pend admin
-		}
-		if($lrow["kategori"]=='R4'){			
-			$admin['R4']+=($lrow["biaya_adm_sales"]+$lrow["biaya_admin"]);
-			$admin['R4']+=$lrow["biaya_polis"];//polis jadi pend admin
+		if($lrow["status_barang"]=='Datun'){
+			if($lrow["kategori"]=='R2'){
+				$admin['Datun']+=$lrow["biaya_admin"];
+				$admin['Datun']+=$lrow["biaya_polis"];//polis jadi pend admin
+			}
+			if($lrow["kategori"]=='R4'){			
+				$admin['Datun']+=($lrow["biaya_adm_sales"]+$lrow["biaya_admin"]);
+				$admin['Datun']+=$lrow["biaya_polis"];//polis jadi pend admin
+			}
+		} else {
+			if($lrow["kategori"]=='R2'){
+				$admin['R2']+=$lrow["biaya_admin"];
+				$admin['R2']+=$lrow["biaya_polis"];//polis jadi pend admin
+			}
+			if($lrow["kategori"]=='R4'){			
+				$admin['R4']+=($lrow["biaya_adm_sales"]+$lrow["biaya_admin"]);
+				$admin['R4']+=$lrow["biaya_polis"];//polis jadi pend admin
+			}
 		}
 		
 		if($lrow["status_barang"]=='Baru' ){	
@@ -472,19 +483,30 @@ function save_data(){
 			$tenor=ceil($lama_pinjaman/12);
 			$total_asr_partner=0;
 			for($j=1;$j<=$tenor;$j++){
-				$asr_partner=calc_asuransi($lrow["no_sbg"],$j);	
-				if($j==1){
-					$asuransi[$lrow["fk_partner_asuransi"]][$lrow["kategori"]]+=($asr_partner);
-				}
-				else {
-					$asuransi['ARO'][$lrow["kategori"]]+=($asr_partner);	
+				$asr_partner=calc_asuransi($lrow["no_sbg"],$j);
+				if($lrow["status_barang"]=='Datun'){
+					if($j==1){
+						$asuransi[$lrow["fk_partner_asuransi"]][$lrow["status_barang"]]+=($asr_partner);
+					} else {
+						$asuransi['ARO'][$lrow["status_barang"]]+=($asr_partner);	
+					}
+				} else{
+					if($j==1){
+						$asuransi[$lrow["fk_partner_asuransi"]][$lrow["kategori"]]+=($asr_partner);
+					} else {
+						$asuransi['ARO'][$lrow["kategori"]]+=($asr_partner);	
+					}
 				}
 				$total_asr_partner+=($asr_partner);
 			}			
 			$selisih=$asr_customer-$total_asr_partner;
 			//$diskon_asuransi=$selisih;
 			$diskon_asuransi=0;
-			$asuransi['ARO'][$lrow["kategori"]]+=($selisih);	
+			if($lrow["status_barang"]=='Datun'){				
+				$asuransi['ARO'][$lrow["status_barang"]]+=($selisih);	
+			} else {
+				$asuransi['ARO'][$lrow["kategori"]]+=($selisih);	
+			}
 						
 			$total_asr_jiwa+=$lrow["nilai_asr_jiwa"];		
 			$jiwa[$lrow["fk_partner_asuransi"]]+=($lrow["nilai_asr_jiwa"]);

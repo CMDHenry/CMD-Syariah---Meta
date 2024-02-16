@@ -65,7 +65,7 @@ if($fk_coa_02){
 	select sum(balance_cash+balance_bank+balance_memorial+balance_gl_auto) as saldo_awal from data_accounting.tblsaldo_coa
 	where tr_month=".$l_month." and tr_year=".$l_year." and fk_coa like '".$fk_cabang.'%'.$fk_coa_02."' "));
 	$saldo_awal+=$lrow_saldo_02["saldo_awal"];
-	$saldo_awal_02=$lrow_saldo_01["saldo_awal"];
+	$saldo_awal_02=$lrow_saldo_02["saldo_awal"];
 }
 
 //echo $saldo_awal.'<br>';
@@ -95,10 +95,10 @@ from (
 			select fk_cabang_input,'DEN' as ket,nilai_bayar_denda+nilai_bayar_denda2 as nilai_bayar,cara_bayar,fk_sbg,no_kwitansi from data_fa.tblpembayaran_cicilan
 			where nilai_bayar_denda+nilai_bayar_denda2 > 0 and tgl_batal is null and tgl_input='".$tgl."'
 			union all
-			select fk_cabang_input,'ANG' as ket,sisa_angsuran+sisa_pokok+bunga_berjalan+(total_pembayaran-total_pelunasan) as nilai_bayar,cara_bayar,fk_sbg,no_kwitansi from data_fa.tblpelunasan_cicilan
+			select fk_cabang_input,'ANG' as ket,sisa_angsuran+sisa_pokok+bunga_berjalan+(total_pembayaran-total_pelunasan)-diskon_pelunasan as nilai_bayar,cara_bayar,fk_sbg,no_kwitansi from data_fa.tblpelunasan_cicilan
 			where sisa_angsuran > 0 and tgl_batal is null and tgl_bayar='".$tgl."'
 			union all
-			select fk_cabang_input,'DEN' as ket,nilai_bayar_denda+nilai_bayar_denda2+pinalti as nilai_bayar,cara_bayar,fk_sbg,no_kwitansi from data_fa.tblpelunasan_cicilan
+			select fk_cabang_input,'DEN' as ket,nilai_bayar_denda+nilai_bayar_denda2-diskon_pelunasan as nilai_bayar,cara_bayar,fk_sbg,no_kwitansi from data_fa.tblpelunasan_cicilan
 			where nilai_bayar_denda+nilai_bayar_denda2 > 0 and tgl_batal is null and tgl_bayar='".$tgl."'
 		)as tblmain1
 		inner join (
