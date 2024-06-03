@@ -330,7 +330,7 @@ function save_data(){
 		$i=0;
 		while($lrow=pg_fetch_array($lrs)){
 			
-			if(pg_num_rows(pg_query("select no_sbg from ".$lrs_set_status["save_to_table"]." where $table_pk='".$id_edit."' and is_approval_".strtolower($lrow["approval"]."='t'")))){
+			if(pg_num_rows(pg_query("select no_sbg from ".$lrs_set_status["save_to_table"]." where $table_pk='".$id_edit."' and is_approval_".strtolower($lrow["no"]."='t'")))){
 				
 				//send_email(NULL,strtolower($lrow["approval"]));
 				break;

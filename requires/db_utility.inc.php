@@ -1747,18 +1747,20 @@ function calc_tac($no_sbg,$jenis_tac){
 		$pph21=round($nominal*$rate_pph21);		
 	}	
 	
+	$komisi=$nominal;
 	if($kategori=='R2'){
-		$nominal=$nominal-$pph21-$pph23;	
+		$nominal=$nominal-$pph21-$pph23;
 	}else{
+		$pph21=floor($nominal*$rate_pph21);
 		if($jenis_tac!='Dealer'){			
-			$beban_up=round($beban/(1-$rate_pph21),2);	
-			$pph21=$beban_up-$nominal;
+			$beban_up=round($beban/(1-$rate_pph21),2);
+			// $pph21=$beban_up-$nominal;
 			$komisi=($pph21+$pph23);
 		}else{
 			$pph23=0;
 			$pph21=0;
 		}
-		
+		$nominal=$nominal-$pph21-$pph23;
 	}	
 //	echo $nominal.'aaa<br>';
 	$arr["dpp"]=$dpp;

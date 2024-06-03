@@ -10,7 +10,7 @@ if(!in_array($_SESSION["kd_cabang"],$GLOBALS['__ARR_CABANG__'])){
 }
 $GLOBALS['__LOCK_MENU__'] = array("1110",'1111','1112');//menu yang mau dilock
 $GLOBALS['__LOCK_CABANG__'] = array("");//untuk lock menu dicabang
-if(pg_num_rows(pg_query("select * from tblsetting where is_closing_harian='t'"))&& $_SESSION["username"]!='superuser'){
+if(pg_num_rows(pg_query("select * from tblsetting where is_closing_harian='t'"))&& $_SESSION["username"]!='adminho'){
 	header("location:index.php");
 	exit();
 }
@@ -20,7 +20,7 @@ if ($_SESSION["id"]=="" ){
 	else header("location:index.php");
 }
 
-if($_SESSION["username"]!='superuser'){
+if($_SESSION["username"]!='adminho'){
 	//check_session();
 }
 function check_session(){
@@ -61,7 +61,7 @@ function check_right($p_menu,$p_autoexit=true){
 	$id=$_SESSION["id"];
 	//print_r($GLOBALS['__LOCK_CABANG__']);
 	
-	if($id=="superuser"){
+	if($id=="adminho"){
 		return true;
 	}else{
 		if(in_array($_SESSION["kd_cabang"],$GLOBALS['__LOCK_CABANG__']) && in_array($p_menu,$GLOBALS['__LOCK_MENU__']))return false;

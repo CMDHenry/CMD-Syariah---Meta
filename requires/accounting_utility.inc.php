@@ -297,7 +297,15 @@ function get_coa_posting($p_used_for,$p_cabang='',$p_divisi='',$p_rk='',$p_rk_di
 	"))){
 		return $lrow;
 	//nyari ke accounting
-	}/*elseif($lrow = pg_fetch_array(pg_query("
+	}
+	showquery("select coa,description from (
+		select * from tblcoa where used_for = '".convert_sql($p_used_for)."' 
+		and fk_cabang = '".convert_sql($p_cabang)."' 
+		".(($p_divisi)?" and fk_jenis_cabang = '".convert_sql($p_divisi)."'":"")." 
+		".(($p_rk)?" and rk_dg_cabang = '".convert_sql($p_rk)."'":"")." 
+		".(($p_rk_divisi)?" and rk_dg_divisi = '".convert_sql($p_rk_divisi)."'":"")."
+	)as tblcoa left join tbljenis_transaksi on used_for = kd_jenis_transaksi");
+	/*elseif($lrow = pg_fetch_array(pg_query("
 		select coa,description from (
 			select * from tblcoa where used_for = '".convert_sql($p_used_for)."' 
 			and fk_cabang = '".convert_sql($p_cabang)."' and fk_jenis_cabang = 'A' 

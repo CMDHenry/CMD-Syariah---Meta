@@ -504,21 +504,61 @@ $pdf->ezTable($data,$judul,'',$lining,$size);
 $start_y=$pdf->y;
 $pdf->addText($x6+45,$start_y-15, $fontsize,'('.$lrow["status_inventory"].')');
 
+$queryFunding="
+select * from data_fa.tblfunding_detail
+left join data_fa.tblfunding on data_fa.tblfunding.no_funding = data_fa.tblfunding_detail.fk_funding
+where fk_sbg='".$fk_sbg."' order by tgl_funding desc
+";
+$l_res_funding=pg_fetch_array(pg_query($queryFunding));
+
 $start_y=$pdf->y;
 $start_y-=40;
 $pdf->addText($x1,$start_y, $fontsize,'Keterangan');
-$pdf->addText($x2,$start_y, $fontsize,': ');
+if($l_res_funding['tgl_unpledging'] != null || empty($l_res_funding)){
+	$pdf->addText($x2,$start_y, $fontsize,': ');
+}else{
+	$pdf->addText($x2,$start_y, $fontsize,': Funding di '. str_replace("FUNDING-","BANK ",$l_res_funding['fk_partner']) . ' per tanggal ' . date("d F Y",strtotime(substr($l_res_funding['tgl_funding'],0,10))));
+}
 $start_y-=15;
 
+$l_res=pg_query($queryFunding);
+if (!empty($l_res_funding)) {
+	$pdf->addText($x1,$start_y, $fontsize,'History Funding');
+	$start_y-=15;
+    $pdf->addText($x1, $start_y, $fontsize, 'No Funding');	
+    $pdf->addText($x1+100, $start_y, $fontsize, ' | Bank Funding ');
+    $pdf->addText($x1+320, $start_y, $fontsize, ' | Tanggal Limpah ');
+    $pdf->addText($x1+470, $start_y, $fontsize, ' | Tanggal Cabut Limpah');
+    $start_y -= 15;
+
+    while ($lrow = pg_fetch_array($l_res)) {
+        $tgl_unpledging = $lrow['tgl_unpledging'] ? date("d F Y", strtotime(substr($lrow['tgl_unpledging'], 0, 10))) : "-";
+        $pdf->addText($x1, $start_y, $fontsize, $lrow['no_funding']);
+        $pdf->addText($x1+100, $start_y, $fontsize, ' | ' . str_replace("FUNDING-", "BANK ", $lrow['fk_partner']));
+        $pdf->addText($x1+320, $start_y, $fontsize, ' | ' . date("d F Y", strtotime(substr($lrow['tgl_funding'], 0, 10))));
+        $pdf->addText($x1+470, $start_y, $fontsize, ' | ' . $tgl_unpledging);
+        $start_y -= 15;
+    }
+}
+
 $query="
-select * from data_gadai.tblhistory_sbg 
-where transaksi in('Tarik','Tebus','Lelang','Jual Cash','Jual Kredit','Claim Asuransi') and tgl_batal is null
-and fk_sbg='".$fk_sbg."' order by no
+select * from data_gadai.tblhistory_sbg
+left join data_gadai.tbllelang on data_gadai.tbllelang.no_kwitansi = data_gadai.tblhistory_sbg.referensi
+left join data_gadai.tblproduk_cicilan on data_gadai.tblproduk_cicilan.no_sbg = data_gadai.tblhistory_sbg.fk_sbg
+left join tblpartner on data_gadai.tblproduk_cicilan.fk_partner_asuransi = kd_partner
+where transaksi in('Tarik','Tebus','Lelang','Jual Cash','Jual Kredit','Claim Asuransi') and data_gadai.tblhistory_sbg.tgl_batal is null
+and data_gadai.tblhistory_sbg.fk_sbg='".$fk_sbg."' order by no
 ";
 $l_res=pg_query($query);	
 while($lrow=pg_fetch_array($l_res)){
 	$pdf->addText($x1,$start_y, $fontsize,''.$lrow['transaksi']);
-	$pdf->addText($x1+50,$start_y, $fontsize,' Tgl '.date("d/m/Y",strtotime($lrow["tgl_data"])));
+	if($lrow['transaksi']=='Tarik' || $lrow['transaksi']=='Tebus'){
+		$pdf->addText($x1+90,$start_y, $fontsize,' Tgl '.date("d F Y",strtotime($lrow["tgl_data"])));
+	} elseif($lrow['transaksi']=='Claim Asuransi') {
+		$pdf->addText($x1+90, $start_y, $fontsize,' pada ' . date("d F Y", strtotime($lrow["tgl_lelang"])) . ' dengan no kwitansi ' . $lrow['no_kwitansi'] . ' sebesar ' . convert_money("",$lrow['angka_lelang'] + $lrow['nilai_claim']) . ' ('.$lrow['nm_partner'].')');
+	}else {
+		$pdf->addText($x1+90, $start_y, $fontsize,' pada ' . date("d F Y", strtotime($lrow["tgl_lelang"])) . ' dengan no kwitansi ' . $lrow['no_kwitansi'] . ' sebesar ' . convert_money("",$lrow['angka_lelang'] + $lrow['nilai_claim']) . ' ('.$lrow['nm_penerima'].')');
+	}
 	$start_y-=15;
 }
 

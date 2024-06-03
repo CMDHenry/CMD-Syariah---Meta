@@ -857,14 +857,30 @@ function save_data(){
 		
 		if(strstr($jenis_pembayaran,'Pembayaran TAC')){	
 			foreach($beban as $kategori =>$total1){								
-				if($is_beban=='t'){
-					$arrPost["beban_insentif_".$kategori]= array('type'=>'d','value'=>$total1);
-				}else {
-					$arrPost["utang_insentif_".$kategori]= array('type'=>'d','value'=>$total1);	
+				// if($kategori =='r2'){
+				// 	if($is_beban=='t'){
+				// 		$arrPost["beban_insentif_".$kategori]= array('type'=>'d','value'=>$total1);
+				// 	}else {
+				// 		$arrPost["utang_insentif_".$kategori]= array('type'=>'d','value'=>$total1);	
+				// 	}
+				// }
+
+				if($jenis_pembayaran == 'Pembayaran TAC Dealer' || $jenis_pembayaran == 'Pembayaran TAC Lain'){
+					if($is_beban=='t'){
+						$arrPost["beban_insentif_".$kategori]= array('type'=>'d','value'=>$total1);
+					}else {
+						$arrPost["utang_insentif_".$kategori]= array('type'=>'d','value'=>$total1);	
+					}
 				}
 				
-				if($komisi[$kategori]>0){
-					$arrPost["komisi_penj_".$kategori]	 = array('type'=>'d','value'=>$komisi[$kategori]);
+				if($kategori=='r2'){
+					if($komisi[$kategori]>0){
+						$arrPost["komisi_penj_".$kategori]	 = array('type'=>'d','value'=>$komisi[$kategori]);
+					}
+				} else{
+					if($komisi[$kategori]>0){
+						$arrPost["komisi_penj_".$kategori]	 = array('type'=>'d','value'=>$beban[$kategori]);
+					}
 				}
 				$i++;
 			}	

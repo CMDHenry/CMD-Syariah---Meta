@@ -215,8 +215,8 @@ function save_additional(){
 		$rpkc 	  = get_coa_cabang($fk_cabang,$fk_cabang_input);
 		$arrPost["rpkc"]			= array('type'=>'c','value'=>$total_pembayaran,'account'=>$rpkc,'reference'=>$no_pelunasan);
 		//cek_balance_array_post($arrPost);
-		if(!posting('PEMBAYARAN CICILAN',$fk_sbg,$tgl_bayar,$arrPost,$fk_cabang_input,'00'))$l_success=0;			
-		
+		if(!posting('PEMBAYARAN CICILAN',$fk_sbg,$tgl_bayar,$arrPost,$fk_cabang_input,'00'))$l_success=0;
+			
 		if($fk_cabang_input==cabang_ho){
 			
 		$arrPost = array();
@@ -271,7 +271,7 @@ function save_additional(){
 	
 	//echo $tgl_bayar;
 	//cek_balance_array_post($arrPost);
-	if(!posting('PELUNASAN CICILAN',$fk_sbg,$tgl_bayar,$arrPost,$fk_cabang,'00'))$l_success=0;	
+	if(!posting('PELUNASAN CICILAN',$fk_sbg,$tgl_bayar,$arrPost,$fk_cabang,'00'))$l_success=0;
 	if($l_success==0){
 		cek_balance_array_post($arrPost);
 	}
@@ -340,4 +340,3 @@ function save_additional(){
 //	}
 
 ?>
-

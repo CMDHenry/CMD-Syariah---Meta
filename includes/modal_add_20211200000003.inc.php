@@ -48,7 +48,7 @@ function save_additional(){
 	$total_pembayaran=str_replace(',','',$_REQUEST['total_pembayaran']);
 	$fk_bank=$_REQUEST["fk_bank"];
 	$fk_cabang=$_REQUEST["fk_cabang"];
-	$fk_cabang=$_REQUEST["fk_cabang"];
+	$fk_cabang_bayar=$_REQUEST["fk_cabang_bayar"];
 	$tgl_bayar=convert_date_english($_REQUEST['tgl_bayar']);
 	
 	$lrow=pg_fetch_array(pg_query("
@@ -73,10 +73,11 @@ function save_additional(){
 	
 	$transaksi='PEMBAYARAN TEBUS';	
 	
-	$coa_bank = get_coa_bank($fk_bank,$fk_cabang);
+	$coa_bank = get_coa_bank($fk_bank,$fk_cabang_bayar);
 	$arrPost = array();
-	$arrPost["bank"]					= array('type'=>'d','value'=>$total_pembayaran,'account'=>$coa_bank);
-	$arrPost["pend_admin_".$kategori]	= array('type'=>'c','value'=>$total_pembayaran);
+	$arrPostCabangBayar = array();
+	$arrPostCabangBayar["bank"]					= array('type'=>'d','value'=>$total_pembayaran,'account'=>$coa_bank);
+	$arrPostCabangBayar["pend_admin_".$kategori]	= array('type'=>'c','value'=>$total_pembayaran);
 	
 	$query_sisa="
 	select saldo_pinjaman as ar_cicilan,saldo_bunga from data_fa.tblangsuran 
@@ -107,6 +108,7 @@ function save_additional(){
 		$arrPost[$index]['reference'] =$no_kwitansi;//tambah keterangan disemua arrpost
 	}
 	
+	if(!posting($transaksi,$fk_sbg,$tgl_bayar,$arrPostCabangBayar,$fk_cabang_bayar,'00'))$l_success=0;
 	if(!posting($transaksi,$fk_sbg,$tgl_bayar,$arrPost,$fk_cabang,'00'))$l_success=0;
 
 	$fom_tarik=date("Y-m-01",strtotime($lrow["tgl_tarik"]));
@@ -135,6 +137,7 @@ function save_additional(){
 		}
 		cek_balance_array_post($arrPost);	
 		if(!posting($transaksi,$fk_sbg,$tgl_bayar,$arrPost,$fk_cabang,'00'))$l_success=0;
+		if(!posting($transaksi,$fk_sbg,$tgl_bayar,$arrPostCabangBayar,$fk_cabang_bayar,'00'))$l_success=0;
 	}
 	
 	

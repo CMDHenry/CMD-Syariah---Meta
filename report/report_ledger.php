@@ -278,6 +278,9 @@ function excel_content(){
 			if(date('d',strtotime($periode_awal))!='01'){
 				$saldo+=get_saldo_coa_harian($row["fk_coa_gl"]);
 			}
+			if($l_month == '1' && $type_saldo!="Rollover"){
+				$saldo=0;
+			}
 			$data_olahan[$i]["saldo_akhir"]=$saldo;//*$row_rate["rate"]	
 			$i++;
 			
@@ -473,9 +476,3 @@ function get_saldo_coa_harian($fk_coa=NULL){
 	}
 	return $saldo;
 }
-
-
-
-
-
-

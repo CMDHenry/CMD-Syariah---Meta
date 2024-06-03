@@ -85,7 +85,7 @@ class PDF extends PDFB
 		
 		$total_pembayaran=$lrow["angka_lelang"];
 		if($jenis_transaksi=='Jual Credit'){
-			$total_pembayaran=$lrow["dp_jual"];
+			$total_pembayaran=$lrow["dp_jual"]-$lrow["nilai_subsidi"];
 		}elseif($jenis_transaksi=='Claim Asuransi'){
 			$total_pembayaran=$lrow["nilai_claim"];
 		}
@@ -175,7 +175,7 @@ class PDF extends PDFB
 		
 		$pdf->Text($x1,$y, 'Untuk Pembayaran');
 		$pdf->Text($x2,$y, ':');		
-		$pdf->Text($x4,$y, ($lrow["dp_jual"]>0?"DP":"Penjualan").' 1(Satu) Unit Kendaraan');
+		$pdf->Text($x4,$y, ($lrow["dp_jual"]>0?"DP":"Penjualan").' 1 (Satu) Unit Kendaraan');
 		
 		$pdf->Text($x7,$y, 'No Polisi');
 		$pdf->Text($x8,$y, ':');
@@ -214,27 +214,141 @@ class PDF extends PDFB
 		$pdf->Text($x10,$y,'No KTP/HP :');
 		
 		
-		$query="
-			select * from tbluser
-			left join tblkaryawan on npk=fk_karyawan
-			where username = '".$_SESSION['username']."'
-		";
-		//showquery($query);
-		$lrs=pg_query($query);
-		$lrow=pg_fetch_array($lrs);
+		// $query="
+		// 	select * from tbluser
+		// 	left join tblkaryawan on npk=fk_karyawan
+		// 	where username = '".$_SESSION['username']."'
+		// ";
+		// //showquery($query);
+		// $lrs=pg_query($query);
+		// $lrow=pg_fetch_array($lrs);
 				
-		$nm_depan=$lrow["nm_depan"];
+		// $nm_depan=$lrow["nm_depan"];
 		
-		$y+=12;
+		// $y+=12;
 								
 		//$pdf->BarCode($id_edit,"", 30, $y, 500, 88, 0.4, 0.4, 2, 5, "", "PNG");//harus ada
 		
+		//Subsidi
+		if($lrow["nilai_subsidi"]>0){
+			$pdf->AddPage();
+			$total_pembayaran = $lrow["nilai_subsidi"];
+			$y=35;
+			$w=210;
+			$h=40;
+			
+			$x1=20;		
+			$x2=100;
+			$x3=110;
+			
+			$x4=110;
+			$x5=180;
+			$x6=190;
+			
+			$x7=280;
+			$x8=320;
+			$x9=330;
+			
+			$x10=400;		
+			$x11=460;
+			$x12=470;
+			
+			
+			$pdf->Image('logo.jpeg',0,20,180);	
+			
+			$pdf->setY($y);
+			
+			$pdf->SetFont("Arial", "", 15);
+			$pdf->SetTextColor(255, 0, 0);
+			$pdf->SetTextColor(0, 0, 0);
+			
+			$pdf->SetFont("Arial", "", 9);
+			$pdf->Text($x10,$y, 'Nomor PK');
+			$pdf->Text($x11,$y, ':');		
+			$pdf->Text($x12,$y, ''.$no_sbg);
+			$y+=15;	
+			$pdf->SetFont("Arial", "I", 9);
+			$pdf->SetFont("Arial", "", 9);			
+			$pdf->Text($x10,$y, 'ID Customer');
+			$pdf->Text($x11,$y, ':');		
+			$pdf->Text($x12,$y, ''.$lrow["fk_cif"]);
+			$y+=10;		
+			$pdf->line(20,$y,555,$y);
+			//echo round(str_replace(" ","",microtime(true))*100000000);
+			$codeContents='['.$lrow["nm_cabang"].', '.$tgl_bayar.'] - [NoPK:'.$no_sbg.'] - [NoKW:'.$id_edit.'] - [NoPol:'.$lrow["no_polisi"].'] - [Jlh:'.convert_money("Rp",$total_pembayaran).']';
+			//echo $codeContents;
+			if($_SERVER['DOCUMENT_ROOT']=="D:/Development/Web Project"){
+				//$filename="http://192.168.4.10/gadai/test.php";
+				$filename="http://192.168.4.10/gadai/qr_code.php?codeContents=".urlencode($codeContents)."";
+				//$filename="http://116.90.163.21:81/api/qr_code.php?codeContents=".$id_edit."";
+			}else{
+				$filename="http://localhost:81/api/qr_code.php?codeContents=".urlencode($codeContents)."";
+			}
+			$pdf->Image($filename, $x12,$y+5, 80, 80);
+			
+			$y+=20;						
+			
+			$pdf->Text($x1,$y, 'Kwitansi Nomor');
+			$pdf->Text($x2,$y, ':');
+			$pdf->Text($x3,$y, ''.$id_edit);
+			$y+=12;
+			
+			$pdf->Text($x1,$y, 'Terima Dari');
+			$pdf->Text($x2,$y, ':');
+			$pdf->Text($x3,$y, ''.$lrow['nm_penerima']);
+			$y+=12;
+			$y+=12;
+			
+			$pdf->Text($x1,$y, 'Banyaknya Uang');
+			$pdf->Text($x2,$y, ':');
+			$pdf->Text($x3,$y, '#'.strtolower(convert_terbilang($total_pembayaran)).'#');
+			$y+=12;
+			
+			$pdf->Text($x1,$y, 'Untuk Pembayaran');
+			$pdf->Text($x2,$y, ':');		
+			$pdf->Text($x4,$y, ($lrow["dp_jual"]>0 ? "DP" : "Penjualan").' 1 (Satu) Unit Kendaraan');
+			
+			$pdf->Text($x7,$y, 'No Polisi');
+			$pdf->Text($x8,$y, ':');
+			$pdf->Text($x9,$y, ''.$lrow["no_polisi"]);
+			$y+=12;
+
+			$pdf->Text($x4,$y, 'No Rangka ');
+			$pdf->Text($x5-20,$y, ':');
+			$pdf->Text($x6-20,$y, ''.$lrow["no_rangka"]);
+			
+			$pdf->Text($x7,$y, 'Merek');
+			$pdf->Text($x8,$y, ':');
+			$pdf->Text($x9,$y, ''.$lrow["nm_merek"]);		
+			$y+=12;
+				
+			$pdf->Text($x4,$y, 'No Mesin ');
+			$pdf->Text($x5-20,$y, ':');
+			$pdf->Text($x6-20,$y, ''.$lrow["no_mesin"]);
+			
+			$pdf->Text($x7,$y, 'Tipe');
+			$pdf->Text($x8,$y, ':');
+			$pdf->Text($x9,$y, ''.$lrow["nm_tipe"]);		
+			$y+=12;
+
+			$pdf->Text($x10,$y, $lrow["nm_cabang"].', '.$tgl_bayar);
+			$y+=12;
+			
+			$pdf->Text($x10,$y,'Dibayar Oleh :                 Diterima Oleh :');
+			$y+=18;
 		
-		
+			$pdf->Text($x1,$y,'Jumlah Rp.'.convert_money("",$total_pembayaran));
+			$y+=42;
+			$y+=16;
+			$pdf->Text($x10,$y,'Nama Penyetor :');
+			$y+=12;
+			$pdf->Text($x10,$y,'No KTP/HP :');
+			
+			$y+=12;
+		}		
 
-$pdf->SetFont('Arial','B',12);
+		$pdf->SetFont('Arial','B',12);
 
 
-$pdf->Output();
-
+		$pdf->Output();
 ?>

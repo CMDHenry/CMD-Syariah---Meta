@@ -102,7 +102,7 @@ function save_data(){
 		$total_bunga=$lrow["total_bunga"];		
 
 		$query_sisa="
-		select saldo_pinjaman as ar_cicilan,saldo_bunga from data_fa.tblangsuran 
+		select saldo_pinjaman as ar_cicilan,saldo_bunga, saldo_pokok from data_fa.tblangsuran 
 		where fk_sbg='".$fk_sbg."' and tgl_bayar is not null
 		order by angsuran_ke desc
 		";
@@ -126,8 +126,12 @@ function save_data(){
 		
 		$arrPost = array();	
 		$arrPost["piutang_pembiayaan"]				= array('type'=>'c','value'=>$ar_cicilan);
-		$arrPost["jaminan_dikuasai_kembali"]		= array('type'=>'d','value'=>$ar_cicilan-$sisa_yad);
-		$arrPost["pend_bunga_yad"]		        	= array('type'=>'d','value'=>$sisa_yad);
+		// Ambil saldo proporsional
+		// $arrPost["jaminan_dikuasai_kembali"]		= array('type'=>'d','value'=>$ar_cicilan-$sisa_yad);
+		// $arrPost["pend_bunga_yad"]		        	= array('type'=>'d','value'=>$sisa_yad);
+		// Ambil saldo pokok bunga		
+		$arrPost["jaminan_dikuasai_kembali"]		= array('type'=>'d','value'=>$lrow_sisa["saldo_pokok"]);
+		$arrPost["pend_bunga_yad"]		        	= array('type'=>'d','value'=>$lrow_sisa["saldo_bunga"]);
 		
 		foreach($arrPost as $index=>$temp){
 			$arrPost[$index]['reference'] =$referensi;//tambah keterangan disemua arrpost

@@ -259,8 +259,9 @@ order by urutan,tgl_cair
 			<td align="center" rowspan="2">POSISI BPKB</td>
 					 
 		 	<td align="center" rowspan="2">NO KONTRAK</td>
-			<td align="center" rowspan="2">TGL BATCHING</td>			
-			<td align="center" rowspan="2">TGL KONTRAK</td>			
+			<td align="center" rowspan="2">TGL BATCHING</td>
+			<td align="center" rowspan="2">TGL KONTRAK</td>
+			<td align="center" rowspan="2">TGL KIRIM BPKB</td>
 			
 			
 			<td align="center" rowspan="2">NAMA DEBITUR</td>
@@ -304,6 +305,7 @@ order by urutan,tgl_cair
 		}
 		
 		$total_tgl_terima += $num_tgl_terima;
+		$tgl_kirim_bpkb = get_rec("data_fa.tblmutasi_bpkb left join data_fa.tblmutasi_bpkb_detail on data_fa.tblmutasi_bpkb_detail.fk_mutasi = data_fa.tblmutasi_bpkb.no_mutasi","tgl_kirim","fk_sbg ='".$lrow["fk_sbg"]."'");
 		
 		echo '
 			<tr>
@@ -311,7 +313,8 @@ order by urutan,tgl_cair
 				<td valign="top">'.$lrow["posisi_bpkb"].'</td>			
 				<td valign="top">&nbsp;'.$lrow["fk_sbg"].'</td>
 				<td valign="top">'.($lrow["tgl_cair"]==""?"":date("d/m/Y",strtotime($lrow["tgl_cair"]))).'</td>	
-				<td valign="top">'.($lrow["tgl_pengajuan"]==""?"":date("d/m/Y",strtotime($lrow["tgl_pengajuan"]))).'</td>								
+				<td valign="top">'.($lrow["tgl_pengajuan"]==""?"":date("d/m/Y",strtotime($lrow["tgl_pengajuan"]))).'</td>
+				<td valign="top">'.($keterangan!="Sedang Dikirim"?"":date("d/m/Y",strtotime($tgl_kirim_bpkb))).'</td>
 											
 				<td valign="top">'.$lrow["nm_customer"].'</td>
 				<td valign="top">'.$lrow["no_rangka"].'</td>

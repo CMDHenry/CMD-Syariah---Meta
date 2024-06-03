@@ -56,7 +56,7 @@ if(pg_num_rows(pg_query("select * from data_gadai.tblclosing_harian where tgl_cl
 		)as tblinventory on fk_sbg=fk_sbg1
 	)as tblmain 	
 	left join (
-		select no_fatg as no_fatg1,kategori,no_sbg from data_gadai.tblproduk_cicilan 
+		select no_fatg as no_fatg1,kategori,no_sbg,tgl_wo from data_gadai.tblproduk_cicilan 
 		left join viewkendaraan on fk_fatg=no_fatg
 	)as view on no_sbg=fk_sbg
 	left join(
@@ -68,7 +68,7 @@ if(pg_num_rows(pg_query("select * from data_gadai.tblclosing_harian where tgl_cl
 		where transaksi='Tebus'	and tgl_data<='".$eom_before." 23:59:59' and tgl_batal is null
 	)as tebus on no_sbg=fk_sbg_tebus	
 				
-	where akrual_akhir_bulan!=0	
+	where akrual_akhir_bulan!=0 and tgl_wo is null
 	--and (tgl_tarik is null or (tgl_tebus is not null and tgl_tarik>tgl_tebus))
 	--limit 10
 	--limit 500
@@ -80,18 +80,21 @@ if(pg_num_rows(pg_query("select * from data_gadai.tblclosing_harian where tgl_cl
 		$kategori=strtolower($lrow["kategori"]);
 		$akrual_akhir_bulan=$lrow["akrual_akhir_bulan"];
 		$fk_cabang=$lrow["fk_cabang"];
+		$tgl_jatuh_tempo = date("Y-m-d", strtotime('+1 month', strtotime(get_rec("data_fa.tblangsuran","tgl_jatuh_tempo","fk_sbg = '".$lrow["no_sbg"]."' and tgl_bayar is not null","tgl_bayar desc"))));
+		$od=(strtotime($eom_before)-strtotime($tgl_jatuh_tempo))/(60*60*24);
 		$posting=true;
 		//echo $kategori;
-		if($lrow["tgl_tarik"]==NULL || ($lrow["tgl_tebus"]!=NULL && $lrow["tgl_tebus"]>$lrow["tgl_tarik"])){//tarik gk usa akru
+		if($lrow["tgl_tarik"]==NULL || ($lrow["tgl_tebus"]!=NULL && $lrow["tgl_tebus"]>$lrow["tgl_tarik"]) && $od <= 60){//tarik, od>60, status wo gk usa akru
 			//showquery("select fk_owner,total from data_accounting.tblgl_auto where type_owner='AKRUAL AKHIR BULAN' and tr_date like '".$eom_before."%' and fk_owner ='".$lrow["fk_sbg"]."' and total=".$akrual_akhir_bulan."");
-			if(!pg_num_rows(pg_query("select fk_owner,total from data_accounting.tblgl_auto where type_owner='AKRUAL AKHIR BULAN' and tr_date like '".$eom_before."%' and fk_owner ='".$lrow["fk_sbg"]."' and total=".$akrual_akhir_bulan.""))){
-				
-				$arrPost = array();				
-				$arrPost["pend_bunga_yad"]				= array('type'=>'d','value'=>$akrual_akhir_bulan);
-				$arrPost["pend_bunga_".$kategori]		= array('type'=>'c','value'=>$akrual_akhir_bulan);				
-				//cek_balance_array_post($arrPost);
-				if($posting==true){
-					if(!posting('AKRUAL AKHIR BULAN',$lrow["fk_sbg"],$eom_before,$arrPost,$fk_cabang,'00'))$l_success=0;	
+			if($od <= 60){
+				if(!pg_num_rows(pg_query("select fk_owner,total from data_accounting.tblgl_auto where type_owner='AKRUAL AKHIR BULAN' and tr_date like '".$eom_before."%' and fk_owner ='".$lrow["fk_sbg"]."' and total=".$akrual_akhir_bulan.""))){
+					$arrPost = array();				
+					$arrPost["pend_bunga_yad"]				= array('type'=>'d','value'=>$akrual_akhir_bulan);
+					$arrPost["pend_bunga_".$kategori]		= array('type'=>'c','value'=>$akrual_akhir_bulan);				
+					//cek_balance_array_post($arrPost);
+					if($posting==true){
+						if(!posting('AKRUAL AKHIR BULAN',$lrow["fk_sbg"],$eom_before,$arrPost,$fk_cabang,'00'))$l_success=0;	
+					}
 				}
 			}
 		}

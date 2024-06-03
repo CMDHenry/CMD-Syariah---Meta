@@ -192,7 +192,7 @@ function save_data(){
 		elseif($arrPost[$index]['type']=='c') $arrPost[$index]['type']='d';
 	}
 
-	//cek_balance_array_post($arrPost);
+	// cek_balance_array_post($arrPost);
 	//echo $tgl_batch;
 	//if(count($arrPost)>0){
 		if(!posting('BATAL AR',$fk_sbg,$tgl_batch,$arrPost,$fk_cabang,'00'))$l_success=0;

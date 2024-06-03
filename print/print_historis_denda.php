@@ -112,7 +112,7 @@ $query="
 		where transaksi in('Bayar Denda Ganti Rugi') and tgl_batal is null
 	)as tbldenda2 on fk_sbg=fk_sbg2 and ang_ke=angsuran_ke	
 	where fk_sbg = '".$fk_sbg."' and angsuran_ke >0
-	--and tgl_jatuh_tempo<'".$tgl_sistem."' 
+	--and tgl_jatuh_tempo<'".$tgl_sistem."'
 	--and tgl_bayar is not null
 	order by angsuran_ke
 ";
@@ -126,6 +126,7 @@ while($lrow1=pg_fetch_array($l_res1)){
 	$tgl_bayar = ($lrow1["tgl_bayar"]==""?"":date("d M Y",strtotime($lrow1["tgl_bayar"])));
 	$tgl_bayar_denda = ($lrow1["tgl_bayar_denda"]==""?"":date("d M Y",strtotime($lrow1["tgl_bayar_denda"])));
 	$denda=0;
+	// $denda=$lrow1["denda"];
 	$denda_keterlambatan=0;
 	$denda_ganti_rugi=0;
 	if($tgl_bayar)$tgl_hitung=$tgl_bayar;
@@ -137,20 +138,20 @@ while($lrow1=pg_fetch_array($l_res1)){
 	//}else{
 		$overdue=(strtotime($tgl_hitung)-strtotime($lrow1['tgl_jatuh_tempo']))/ (60 * 60 * 24);     
 		if($overdue<0)$overdue=0;
-		$libur=0;
+		// $libur=0;
 		if($overdue>0){						
-			$now=date("Y-m-d",strtotime('-1 day',strtotime($tgl_sistem)));
+			// $now=date("Y-m-d",strtotime('-1 day',strtotime($tgl_sistem)));
 			
-			while(strtotime($now)>=strtotime($tgl_jatuh_tempo)){		
-				$hari=date('l',strtotime($now));
-				if((pg_num_rows(pg_query("select * from tblhari_libur where tgl_libur= '".$now."'"))|| $hari=='Sunday')){
-					$libur++;
-					//break;
-				}
-				$now=date("Y-m-d",strtotime('-1 day',strtotime($now)));
-				//break;
-			}
-			if($libur==$overdue)$overdue=0;
+			// while(strtotime($now)>=strtotime($tgl_jatuh_tempo)){		
+			// 	$hari=date('l',strtotime($now));
+			// 	if((pg_num_rows(pg_query("select * from tblhari_libur where tgl_libur= '".$now."'"))|| $hari=='Sunday')){
+			// 		$libur++;
+			// 		//break;
+			// 	}
+			// 	$now=date("Y-m-d",strtotime('-1 day',strtotime($now)));
+			// 	//break;
+			// }
+			// if($libur==$overdue)$overdue=0;
 			
 			//$denda_keterlambatan=$lrow["nominal_denda_keterlambatan"];
 			$denda_ganti_rugi=round($lrow["rate_denda_ganti_rugi"]*$nilai_angsuran/100)*$overdue;
@@ -166,9 +167,9 @@ while($lrow1=pg_fetch_array($l_res1)){
 	$sisa+=($denda-$lrow1["denda_bayar"]);
 	$data[$i]['no'] = $i;
 	$data[$i]['angsuran_ke'] = $angsuran_ke;
-	$data[$i]['tgl_jatuh_tempo'] = $tgl_jatuh_tempo;	
+	$data[$i]['tgl_jatuh_tempo'] = $tgl_jatuh_tempo;
 	$data[$i]['tgl_bayar'] = $tgl_bayar;
-	$data[$i]['denda'] = convert_money("",$denda);	
+	$data[$i]['denda'] = convert_money("",$denda);
 	$data[$i]['tgl_bayar_denda'] = $tgl_bayar_denda;
 	$data[$i]['denda_bayar'] = convert_money("",$lrow1["denda_bayar"]);
 	$data[$i]['sisa'] = convert_money("",$sisa);	

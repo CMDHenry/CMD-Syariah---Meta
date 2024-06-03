@@ -211,8 +211,9 @@ function excel_content(){
 		left join viewkontrak on no_sbg=no_sbg1
 		left join (select npk, fk_jabatan, nm_depan||' '||case when nm_belakang is not null then nm_belakang else '' end as nm_karyawan from tblkaryawan) as tblkaryawan on npk=fk_karyawan_sales		
 		left join(
-			select no_sbg as no_sbg_appr,addm_addb,tgl_jatuh_tempo, nilai_dp,tgl_wo,total_hutang as total_ar,rate as rate_jaminan,tgl_pengiriman_kontrak,tgl_pengajuan from data_gadai.tblproduk_cicilan			
+			select nm_produk,skema_pembiayaan,jenis_pembiayaan,no_sbg as no_sbg_appr,addm_addb,tgl_jatuh_tempo, nilai_dp,tgl_wo,total_hutang as total_ar,rate as rate_jaminan,tgl_pengiriman_kontrak,tgl_pengajuan from data_gadai.tblproduk_cicilan			
 			left join tblmetode_perhitungan_jaminan on fk_metode=kd_metode
+			left join tblproduk on fk_produk=kd_produk
 		)as tblappr on no_sbg1 = no_sbg_appr
 		left join(
 			select * from viewkendaraan
@@ -284,8 +285,12 @@ function excel_content(){
 	'<table border="1">
 	     <tr>
 		 	<td align="center" rowspan="2">NO</td>
-			<td align="center" rowspan="2">NAMA DEBITUR</td>			
-			<td align="center" rowspan="2">NO KONTRAK</td>
+			<td align="center" rowspan="2">NAMA DEBITUR</td>	
+			<td align="center" rowspan="2">NO KTP</td>			
+			<td align="center" rowspan="2">NO KONTRAK</td>			
+			<td align="center" rowspan="2">NAMA PRODUK</td>			
+			<td align="center" rowspan="2">SKEMA PEMBIAYAAN</td>			
+			<td align="center" rowspan="2">JENIS PEMBIAYAAN</td>
 			<td align="center" rowspan="2">TGL PENGAJUAN</td>
 			<td align="center" rowspan="2">OTR</td>				
 			<td align="center" rowspan="2">DOWNPAYMENT</td>
@@ -347,7 +352,7 @@ function excel_content(){
 			<td align="center">KABUPATEN</td>
 		  </tr>
 	';
-	showquery($query);
+	// showquery($query);
 	$lrs = pg_query($query);
 	$no=1;
 	//$is_tarik='t';
@@ -385,6 +390,12 @@ function excel_content(){
 				$ovd['1']['od']=$lrow_ovd["ovd"];
 				$ovd['1']['pokok']+=$lrow_ovd["pokok_jt"];
 				$ovd['1']['bunga']+=$lrow_ovd["bunga_jt"];
+			}
+			if($lrow["saldo_pinjaman"]-$lrow["saldo_blm_jto"]==$lrow_ovd["nilai_angsuran"]){
+				$ovd['1']['ar']=$lrow_ovd["nilai_angsuran"];
+				$ovd['1']['od']=$lrow_ovd["ovd"];
+				$ovd['1']['pokok']=$lrow_ovd["pokok_jt"];
+				$ovd['1']['bunga']=$lrow_ovd["bunga_jt"];
 			}
 			if($lrow_ovd[ovd]>30 && $lrow_ovd[ovd]<=60){
 				$ovd['2']['ar']+=$lrow_ovd["nilai_angsuran"];
@@ -511,8 +522,12 @@ function excel_content(){
 		echo '
 			<tr>
 				<td valign="top">'.$no.'</td>
-				<td valign="top">'.$lrow["nm_customer"].'</td>				
+				<td valign="top">'.$lrow["nm_customer"].'</td>		
+				<td valign="top">'.$lrow["no_id"].'</td>
 				<td valign="top">&nbsp;'.$lrow["no_sbg1"].'</td>
+				<td valign="top">&nbsp;'.$lrow["nm_produk"].'</td>
+				<td valign="top">&nbsp;'.$lrow["skema_pembiayaan"].'</td>
+				<td valign="top">&nbsp;'.$lrow["jenis_pembiayaan"].'</td>
 				<td valign="top">'.($lrow["tgl_pengajuan"]==""?"":date("d/m/Y",strtotime($lrow["tgl_pengajuan"]))).'</td>	
 				<td valign="top">'.number_format($lrow['total_nilai_pinjaman'],2).'</td>
 				<td valign="top">'.number_format($lrow['nilai_dp'],2).'</td>
@@ -598,6 +613,9 @@ function excel_content(){
 			<td valign="top"><b>Grand Total</b></td>
 			<td valign="top"></td>				
 			<td valign="top"></td>			
+			<td valign="top"></td>
+			<td valign="top"></td>
+			<td valign="top"></td>
 			<td valign="top"></td>
 			<td valign="top"></td>
 			<td valign="top"></td>

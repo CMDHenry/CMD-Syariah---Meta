@@ -416,7 +416,7 @@ function save_data(){
 				
 		if(!pg_query("
 		update ".$lrs_set_status["save_to_table"]." set 
-		tgl_approval_".$approval."='".today_db." ".date("H:i:s")."',
+		tgl_approval_".$approval."='".date("Y-m-d h:i:s")."',
 		fk_user_approval_".$approval."='".$_SESSION["username"]."',
 		status_approval='".$status."',
 		alasan_approve_".$approval."='".$alasan_approve."',
@@ -434,7 +434,7 @@ function save_data(){
 		update ".$lrs_set_status["save_to_table"]." set 
 		status_data='Need Approval',
 		alasan=null,tgl_approve=null,
-		tgl_approval_".$approval."='".today_db." ".date("H:i:s")."',
+		tgl_approval_".$approval."='".date("Y-m-d h:i:s")."',
 		fk_user_approval_".$approval."='".$_SESSION["username"]."',	
 		alasan_approve_".$approval."='".$alasan_approve."'
 		where ".$l_table_pk."='".$id_edit."'")) $l_success=0;	
@@ -447,19 +447,19 @@ function save_data(){
 			update ".$lrs_set_status["save_to_table"]." set 
 			".$approval_batal."
 			alasan=null,status_approval='Need Approval',status_data='Need Approval'
-			,tgl_batal='".today_db." ".date("H:i:s")."'
+			,tgl_batal='".date("Y-m-d h:i:s")."'
 			where ".$l_table_pk."='".$id_edit."'")) $l_success=0;		
 /*			showquery("
 			update ".$lrs_set_status["save_to_table"]." set 
 			".$approval_batal."
 			alasan=null,status_approval='Need Approval'
-			,tgl_batal='".today_db." ".date("H:i:s")."'
+			,tgl_batal='".date("Y-m-d h:i:s")."'
 			where ".$l_table_pk."='".$id_edit."'");	
 */		}else{
 			if(!pg_query("
 			update ".$lrs_set_status["save_to_table"]." set 
 			alasan=null,tgl_approve=null,
-			tgl_approval_".$approval."='".today_db." ".date("H:i:s")."',
+			tgl_approval_".$approval."='".date("Y-m-d h:i:s")."',
 			fk_user_approval_".$approval."='".$_SESSION["username"]."',		
 			alasan_approve_".$approval."='".$alasan_approve."' ,	
 			status_approval='Batal'

@@ -131,9 +131,11 @@ where tgl_batal is null and fk_cabang_input='".$fk_cabang."' and tgl_lelang betw
 $lrow_jual=pg_fetch_array(pg_query($query_jual));
 $query_pelunasan="select NULL,no_kwitansi,fk_sbg,'PEL' as ket,sisa_pokok+bunga_berjalan+pinalti+sisa_angsuran as nilai_bayar,cara_bayar,diskon_pelunasan as disc_denda,tgl_bayar,0 as nilai_bayar_denda, 0 as nilai_bayar_denda2,'','',fk_bank,'1',tgl_bayar from data_fa.tblpelunasan_cicilan
 where (sisa_angsuran > 0 or sisa_pokok > 0) and tgl_batal is null and fk_cabang_input='".$fk_cabang."' and tgl_bayar between '".$tgl." 00:00:00' and '".$tgl." 23:59:59'";
+// $query_pelunasan="select NULL,no_kwitansi,fk_sbg,'PEL' as ket,total_pembayaran as nilai_bayar,cara_bayar,diskon_pelunasan as disc_denda,tgl_bayar,0 as nilai_bayar_denda, 0 as nilai_bayar_denda2,'','',fk_bank,'1',tgl_bayar from data_fa.tblpelunasan_cicilan
+// where (sisa_angsuran > 0 or sisa_pokok > 0) and tgl_batal is null and fk_cabang_input='".$fk_cabang."' and tgl_bayar between '".$tgl." 00:00:00' and '".$tgl." 23:59:59'";
 $lrow_pelunasan=pg_fetch_array(pg_query($query_pelunasan));
 $penjualan=$lrow_jual["nilai_dp"]+$lrow_jual["angka_penjualan"];
-$total_penerimaan+=$penjualan+$lrow_pelunasan["nilai_bayar"];
+$total_penerimaan+=$penjualan+$lrow_pelunasan["nilai_bayar"]-$lrow_pelunasan["disc_denda"];
 
 $query_bpkb=pg_fetch_array(pg_query("
 select * from data_fa.tblpembayaran_bpkb 
@@ -158,8 +160,7 @@ $total_lain=$lrow_kas1["total_lain"];
 
 $query_tebus="
 select sum(biaya_tarik+biaya_gudang+biaya_lainnya) as total_tebus from data_fa.tblpembayaran_tebus
-left join tblinventory on tblinventory.fk_sbg=tblpembayaran_tebus.fk_sbg
-where tgl_batal is null and tgl_bayar='".$tgl."' and fk_cabang='".$fk_cabang."'		
+where tgl_batal is null and tgl_bayar='".$tgl."' and fk_cabang_bayar='".$fk_cabang."'		
 ";
 //showquery($query_tebus);
 $lrow_tebus=pg_fetch_array(pg_query($query_tebus));
@@ -258,7 +259,7 @@ $data[$i]['2'] = number_format($lrow_jual["nilai_dp"]);
 $i++;
 $data[$i]['0'] = '';
 $data[$i]['1'] = 'Pelunasan';
-$data[$i]['2'] = number_format($lrow_jual['angka_penjualan']+$lrow_pelunasan["nilai_bayar"]);	
+$data[$i]['2'] = number_format($lrow_jual['angka_penjualan']+$lrow_pelunasan["nilai_bayar"]-$lrow_pelunasan["disc_denda"]);	
 $i++;
 /*$data[$i]['0'] = '-';
 $data[$i]['1'] = 'Penggantian Giro Tolak dengan Tunai';

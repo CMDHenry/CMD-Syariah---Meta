@@ -63,7 +63,8 @@ select * from(
 			select fk_cabang_input,no_kwitansi,fk_sbg,'Ta''zir' as ket,nilai_bayar_denda2 as nilai_bayar,cara_bayar,0 as disc_denda,tgl_input,nilai_bayar_denda,nilai_bayar_denda2,no_kwitansi_manual,nm_kolektor,fk_bank,'1',tgl_bayar   from data_fa.tblpembayaran_cicilan
 			where nilai_bayar_denda2 > 0 and tgl_batal is null
 			union all
-			select NULL,no_kwitansi,fk_sbg,'PEL' as ket,sisa_pokok+bunga_berjalan+pinalti+sisa_angsuran as nilai_bayar,cara_bayar,diskon_pelunasan as disc_denda,tgl_bayar,0 as nilai_bayar_denda, 0 as nilai_bayar_denda2,'','',fk_bank,'1',tgl_bayar   from data_fa.tblpelunasan_cicilan
+			--select NULL,no_kwitansi,fk_sbg,'PEL' as ket,sisa_pokok+bunga_berjalan+pinalti+sisa_angsuran as nilai_bayar,cara_bayar,diskon_pelunasan as disc_denda,tgl_bayar,0 as nilai_bayar_denda, 0 as nilai_bayar_denda2,'','',fk_bank,'1',tgl_bayar   from data_fa.tblpelunasan_cicilan
+			select NULL,no_kwitansi,fk_sbg,'PEL' as ket,total_pembayaran as nilai_bayar,cara_bayar,diskon_pelunasan as disc_denda,tgl_bayar,0 as nilai_bayar_denda, 0 as nilai_bayar_denda2,'','',fk_bank,'1',tgl_bayar   from data_fa.tblpelunasan_cicilan
 			where (sisa_angsuran > 0 or sisa_pokok > 0) and tgl_batal is null
 			union all
 			select fk_cabang_input,no_kwitansi,fk_sbg,'Ta''widh' as ket,nilai_bayar_denda as nilai_bayar,cara_bayar,diskon_pelunasan as disc_denda,tgl_bayar,nilai_bayar_denda,nilai_bayar_denda2,'','',fk_bank,'1',tgl_bayar from data_fa.tblpelunasan_cicilan
@@ -87,6 +88,8 @@ select * from(
 		left join tblcustomer on fk_cif=no_cif
 		left join tblcabang on fk_cabang=kd_cabang
 	) as tblinventory on fk_sbg_inventory=fk_sbg
+	left join (select no_sbg_ar1,kategori from viewkendaraan) as tblkendaraan on no_sbg_ar1=fk_sbg
+	left join (select no_sbg_ar,status_barang from data_gadai.tbltaksir_umum) as tbltaksir on no_sbg_ar=fk_sbg
 	--inner join (
 		--select distinct on(fk_sbg,referensi) fk_sbg as fk_sbg_history,fk_user,referensi,tgl_bayar as tgl_input_sistem from data_gadai.tblhistory_sbg
 	--) as tblhistory on no_kwitansi=referensi 
@@ -101,7 +104,7 @@ select * from(
 	)as tbllog on no_kwitansi_log=no_kwitansi
 )as tblmain
 where true
-".($fk_cabang?" and fk_cabang_input='".$fk_cabang."'":"")."
+".($fk_cabang?" and fk_cabang='".$fk_cabang."'":"")."
 ".($fk_cabang2?" and ((fk_cabang_kontrak='".$fk_cabang2."' and cara_bayar!='Cash')or fk_cabang_input='".$fk_cabang2."')":"")."
 order by tgl_bayar,no_kwitansi,urutan
 ";
@@ -167,6 +170,18 @@ while($lrow=pg_fetch_array($lrs)){
 	
 	$arr2[$lrow['cara_bayar']]+=$lrow["nilai_bayar"];			
 	$arr[$lrow['ket']]+=$lrow["nilai_bayar"];
+	if($lrow['status_barang']=='Datun'){
+		$arrDiv['Datun']+=$lrow["nilai_bayar"];
+		$jlhDebitur['Datun'][$lrow['fk_sbg']]=$lrow['fk_sbg'];
+	}else{
+		if($lrow['kategori']=='R2'){
+			$arrDiv['R2']+=$lrow["nilai_bayar"];
+			$jlhDebitur['R2'][$lrow['fk_sbg']]=$lrow['fk_sbg'];
+		}else{
+			$arrDiv['R4']+=$lrow["nilai_bayar"];
+			$jlhDebitur['R4'][$lrow['fk_sbg']]=$lrow['fk_sbg'];
+		}
+	}
 	
 	//$jml_debitur[$lrow['fk_sbg']]=$lrow['fk_sbg'];
 	// if($lrow['cara_bayar']=='Indomaret' || $lrow['cara_bayar']=='Alfamart' || $lrow['cara_bayar']=='Cash' || $lrow['cara_bayar']=='Collector' || strpos($lrow['cara_bayar'], 'Webpay') === true || $lrow['cara_bayar']=='Giro/Cek'){	
@@ -247,10 +262,12 @@ $i++;
 */
 
 //print_r($arr3);
+$totalSumAngsuran = array_sum($arr3);
 if(count($arr3)>0){
 	foreach($arr3 as $cara =>$nilai){
+		$percentage = ($nilai / $totalSumAngsuran) * 100;
 		$data2[$i]['1'] = 'Sub Total '.$cara;
-		$data2[$i]['2'] =  convert_money("",$nilai);
+		$data2[$i]['2'] =  convert_money("",$nilai). ' ('.number_format((float)$percentage, 2, '.', '').'%)';
 		$i++;
 	}
 }
@@ -276,14 +293,40 @@ $data2[$i]['1'] = "Total Penerimaan";
 $data2[$i]['2'] =  convert_money("",$grandtotal['total']);
 $i++;
 
+$data2[$i]['1'] = " - Sub Total Datun";
+$data2[$i]['2'] =  convert_money("",$arrDiv["Datun"]);
+$i++;
+$data2[$i]['1'] = " - Sub Total R2";
+$data2[$i]['2'] =  convert_money("",$arrDiv["R2"]);
+$i++;
+$data2[$i]['1'] = " - Sub Total R4";
+$data2[$i]['2'] =  convert_money("",$arrDiv['R4']);
+$i++;
+
+$data2[$i]['1'] = "===================================";
+$data2[$i]['2'] = "=======================";
+$i++;
+
+if(count($jlhDebitur)>0){
+	foreach($jlhDebitur as $kategori =>$jumlah){
+		$data2[$i]['1'] = 'Jumlah Debitur '.$kategori;
+		$data2[$i]['2'] =  convert_money("",count($jumlah));
+		$i++;
+	}
+}
+
 if(count($jml_debitur)>0){
 	foreach($jml_debitur as $cara =>$nilai){
 		$data2[$i]['1'] = 'Jumlah Debitur '.$cara;
 		$data2[$i]['2'] =  convert_money("",count($nilai));
-		$total_debitur+= (int) $nilai;
+		$total_debitur+= (int) count($nilai);
 		$i++;
 	}
 }
+
+$data2[$i]['1'] = "";
+$data2[$i]['2'] = "____________";
+$i++;
 
 $data2[$i]['1'] = "Jumlah Debitur";
 $data2[$i]['2'] =  $total_debitur;
